@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>郭桓君的AI智能体</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="/static/kuaishou.png" alt="快手" class="logo">
+                <h3>郭桓君的AI智能体</h3>
+                <button id="new-chat-btn" class="new-chat-btn">+ 开启新对话</button>
+            </div>
+            <div class="conversation-list">
+                <div class="conversation-header">对话历史</div>
+                <div id="conversation-history" class="conversations">
+                    <!-- 对话历史将动态加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 主聊天区域 -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="header-info">
+                    <h2>AI智能体</h2>
+                    <p>由郭桓君同学开发 · 支持天气查询和时间查询</p>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="welcome-message">
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                <p>你好！我是由郭桓君同学开发的AI智能体～</p>
+                                <p>我是一个活泼可爱的小助手，可以帮你查询天气和时间哦！</p>
+                                <p>快来和我聊天吧！✨</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="input-wrapper">
+                        <input type="text" id="chat-input" placeholder="输入消息..." maxlength="500">
+                        <button id="send-btn" class="send-btn">发送</button>
+                    </div>
+                    <div class="input-footer">
+                        <small>支持查询天气（如：北京天气怎么样？）和时间（如：现在几点了？）</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading" class="loading hidden">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
