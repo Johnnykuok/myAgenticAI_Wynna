@@ -8,41 +8,10 @@ Press CTRL+C to quit
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 521-709-743
-127.0.0.1 - - [02/Jul/2025 16:09:45] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:09:56] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:10:29] "POST /api/conversation/new HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:10:39] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:10:48] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:11:00] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:11:09] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:11:20] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:01] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:01] "GET /static/kuaishou.png HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:01] "GET /static/style.css HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:01] "GET /static/script.js HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:01] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:01] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [02/Jul/2025 16:12:05] "GET /api/conversation/d606dd27-b485-4708-9cce-cd777bf5ac39 HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:05] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:10] "POST /api/conversation/save HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:10] "POST /api/conversation/new HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:10] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:18] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:18] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:23] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:23] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:29] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:29] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:34] "POST /api/conversation/save HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:34] "POST /api/conversation/new HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:34] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:42] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:42] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:54] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:12:54] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:13:29] "POST /api/chat HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:13:29] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:13:42] "POST /api/chat HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 20:35:48] "GET /api/conversations HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 20:36:18] "POST /api/conversation/new HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 20:36:30] "POST /api/chat HTTP/1.1" 200 -
+ * Detected change in '/Users/guohuanjun/Downloads/myagent_1/main.py', reloading
 JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
 JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
 JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
@@ -50,6 +19,225 @@ JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 
 JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
 JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
 JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+开始异步生成总结，对话ID: dab23833-156f-49da-b1bd-b67e25a6c888
+总结生成完成: 教你制作美味蛋糕
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 521-709-743
+127.0.0.1 - - [02/Jul/2025 20:37:17] "POST /api/conversation/new HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 20:37:34] "POST /api/chat HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:38:41] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:38:41] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:38:41] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:38:41] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:38:41] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:38:42] "GET /api/conversation/2bae161c-e209-49c1-bf5a-1806b7556fa7 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:38:42] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:38:50] "GET /api/conversation/dab23833-156f-49da-b1bd-b67e25a6c888 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:38:50] "GET /api/conversations HTTP/1.1" 200 -
+ * Detected change in '/Users/guohuanjun/Downloads/myagent_1/main.py', reloading
+调试信息 - 用户消息数量: 1, 对话ID: 2bae161c-e209-49c1-bf5a-1806b7556fa7
+调试信息 - 对话ID是否在缓存中: False
+调试信息 - 开始生成总结，消息: 如何学习人工智能和机器学习...
+开始异步生成总结，对话ID: 2bae161c-e209-49c1-bf5a-1806b7556fa7
+总结生成完成: 人工智能与机器学习学
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 521-709-743
+ * Detected change in '/Users/guohuanjun/Downloads/myagent_1/main.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 521-709-743
+ * Detected change in '/Users/guohuanjun/Downloads/myagent_1/main.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 521-709-743
+ * Detected change in '/Users/guohuanjun/Downloads/myagent_1/main.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 521-709-743
+172.20.108.121 - - [02/Jul/2025 20:40:00] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:00] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:00] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:00] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:00] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:01] "GET /api/conversation/2bae161c-e209-49c1-bf5a-1806b7556fa7 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:01] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:02] "POST /api/conversation/save HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:02] "POST /api/conversation/new HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:02] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:03] "GET /api/conversation/dab23833-156f-49da-b1bd-b67e25a6c888 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:03] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:05] "GET /api/conversation/82845e42-3409-4d6b-bd74-99663c793124 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:05] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:06] "GET /api/conversation/fe634f88-12d7-426c-89a7-73704901e02d HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:06] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:10] "POST /api/conversation/save HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:10] "POST /api/conversation/new HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:11] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:15] "POST /api/chat HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:15] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:17] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:17] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:17] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:17] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:17] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:18] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:18] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:18] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:18] "GET /static/kuaishou.png HTTP/1.1" 304 -
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+调试信息 - 用户消息数量: 1, 对话ID: ccad18b3-5ed4-4030-9aa6-cf544dabd163
+调试信息 - 对话ID是否在缓存中: False
+调试信息 - 开始生成总结，消息: 为我总结这个内容：在旧金山吃晚饭时，我无...
+开始异步生成总结，对话ID: ccad18b3-5ed4-4030-9aa6-cf544dabd163
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)172.20.108.121 - - [02/Jul/2025 20:40:18] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:19] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET / HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /static/kuaishou.png HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /static/style.css HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /static/script.js HTTP/1.1" 304 -
+172.20.108.121 - - [02/Jul/2025 20:40:20] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:22] "GET /api/conversation/ccad18b3-5ed4-4030-9aa6-cf544dabd163 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:22] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:24] "GET /api/conversation/8b77ae47-ea58-45b2-8b2e-3b3af69ddd89 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:24] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:25] "GET /api/conversation/84558605-493a-41bf-8faf-b8a5d6f56a05 HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:25] "GET /api/conversations HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:28] "POST /api/conversation/save HTTP/1.1" 200 -
+172.20.108.121 - - [02/Jul/2025 20:40:28] "POST /api/conversation/new HTTP/1.1" 200 -
+
 JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
 JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
 JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
@@ -125,7 +313,13 @@ JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 
 JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
 JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
 JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)
-JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)127.0.0.1 - - [02/Jul/2025 16:13:42] "GET /api/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:13:50] "POST /api/conversation/save HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:13:50] "POST /api/conversation/new HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2025 16:13:50] "GET /api/conversations HTTP/1.1" 200 -
+JSON解析错误 acc7a71e-3826-4fdd-a9dc-cc172431ca37: Expecting value: line 10 column 7 (char 126)
+JSON解析错误 3ff966e9-31d4-42b3-94c0-97c94ced39b9: Expecting value: line 14 column 7 (char 211)
+JSON解析错误 fc6fb737-1274-4d0e-a0f7-d17c518f66ac: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 351d4f64-3469-4195-8022-bd84570d2221: Expecting value: line 14 column 7 (char 213)
+JSON解析错误 d9236329-0bd9-48c0-a7ef-8c2a7c3cee63: Expecting value: line 10 column 3 (char 139)
+JSON解析错误 eac72bd0-5376-455c-9b1a-9f0f0c9c75da: Expecting value: line 6 column 3 (char 54)
+JSON解析错误 631bbac9-a308-45c1-ac32-193c42d232f3: Expecting value: line 22 column 7 (char 360)
+JSON解析错误 9efbc425-7d48-4af2-b02c-129b1f8a571e: Expecting value: line 10 column 3 (char 139)172.20.108.121 - - [02/Jul/2025 20:40:29] "GET /api/conversations HTTP/1.1" 200 -
+/opt/anaconda3/envs/llm/lib/python3.12/multiprocessing/resource_tracker.py:255: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

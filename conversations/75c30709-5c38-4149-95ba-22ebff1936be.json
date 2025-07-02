@@ -1,0 +1,57 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"
+    },
+    {
+      "role": "user",
+      "content": "未来1个小时是几点"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_cg3zygvtcde8ibfrticyw9nc",
+          "type": "function",
+          "function": {
+            "name": "get_current_time",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_cg3zygvtcde8ibfrticyw9nc",
+      "name": "get_current_time",
+      "content": "{\"status\": \"success\", \"current_time\": \"2025-07-02 21:11:46\", \"weekday\": \"Wednesday\", \"date\": \"2025年07月02日\", \"time\": \"21时11分46秒\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_cofm4k3up4pm9h8if5mz2its",
+          "type": "function",
+          "function": {
+            "name": "get_current_time",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_cofm4k3up4pm9h8if5mz2its",
+      "name": "get_current_time",
+      "content": "{\"status\": \"success\", \"current_time\": \"2025-07-02 21:11:48\", \"weekday\": \"Wednesday\", \"date\": \"2025年07月02日\", \"time\": \"21时11分48秒\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "未来1个小时的时间是22时11分左右哦，当前时间是2025年7月2日21时11分左右呢。"
+    }
+  ],
+  "summary": "未来1小时的时间"
+}

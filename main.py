@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import uuid
+import threading
 from openai import OpenAI
 from datetime import datetime
 from flask import Flask, request, jsonify, render_template, send_from_directory
@@ -49,7 +50,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_current_time",
-            "description": "当且仅当用户需要获取当前时间时，获取本地当前时间",
+            "description": "当且仅当用户需要获取当前时间时，或者问题与当前时间相关时，获取本地当前时间",
             "parameters": {
                 "type": "object",
                 "properties": {},
@@ -102,11 +103,21 @@ def get_current_time():
     except Exception as e:
         return json.dumps({"status": "error", "message": f"获取时间失败: {str(e)}"})
 
-def save_conversation(conversation_id, messages):
+def save_conversation(conversation_id, messages, summary=None):
     """保存对话历史到文件"""
     conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
+    
+    # 如果有总结，将其添加到数据中
+    data = {
+        "messages": messages
+    }
+    if summary:
+        data["summary"] = summary
+    elif conversation_id in conversation_summary_cache:
+        data["summary"] = conversation_summary_cache[conversation_id]
+    
     with open(conversation_file, 'w', encoding='utf-8') as f:
-        json.dump(messages, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 def load_conversation(conversation_id):
     """从文件加载对话历史"""
@@ -114,11 +125,85 @@ def load_conversation(conversation_id):
     if os.path.exists(conversation_file):
         try:
             with open(conversation_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                data = json.load(f)
+                
+                # 兼容旧格式（直接是消息列表）和新格式（包含messages和summary）
+                if isinstance(data, list):
+                    return data  # 旧格式
+                elif isinstance(data, dict) and "messages" in data:
+                    # 新格式，同时加载总结到缓存
+                    if "summary" in data and conversation_id not in conversation_summary_cache:
+                        conversation_summary_cache[conversation_id] = data["summary"]
+                    return data["messages"]
+                else:
+                    return []
         except json.JSONDecodeError as e:
             print(f"JSON解析错误 {conversation_id}: {e}")
             return []
     return []
+
+# 对话总结缓存
+conversation_summary_cache = {}
+
+def generate_conversation_summary(user_message):
+    """同步生成对话总结"""
+    try:
+        response = client.chat.completions.create(
+            model="doubao-seed-1-6-flash-250615",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "为我总结用户输入的内容的summary，summary是一个简短的总结，生成不超过10字的总结，只返回summary，不要输出任何其他内容："
+                },
+                {
+                    "role": "user", 
+                    "content": user_message[:100]  # 限制输入长度
+                }
+            ],
+            max_tokens=15,
+            temperature=0.1
+        )
+        
+        summary = response.choices[0].message.content.strip()
+        # 清理可能的引号或标点
+        summary = summary.strip('"\'""''。！？，：')
+        # 确保不超过10个字符
+        if len(summary) > 10:
+            summary = summary[:10]
+        
+        # 如果生成的内容为空，使用回退方案
+        if not summary:
+            summary = user_message[:5] if len(user_message) > 5 else user_message
+            
+        return summary
+        
+    except Exception as e:
+        print(f"生成对话总结失败: {e}")
+        # 失败时回退到原来的逻辑
+        return user_message[:5] if len(user_message) > 5 else user_message
+
+def get_conversation_summary(conversation_id, first_user_message):
+    """获取对话总结"""
+    # 检查缓存
+    if conversation_id in conversation_summary_cache:
+        return conversation_summary_cache[conversation_id]
+    
+    # 尝试从文件中加载总结
+    conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
+    if os.path.exists(conversation_file):
+        try:
+            with open(conversation_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, dict) and "summary" in data:
+                    conversation_summary_cache[conversation_id] = data["summary"]
+                    return data["summary"]
+        except:
+            pass
+    
+    # 对于旧对话，暂时使用前5个字符，避免频繁调用API
+    fallback = first_user_message[:5] if len(first_user_message) > 5 else first_user_message
+    conversation_summary_cache[conversation_id] = fallback
+    return fallback
 
 def get_all_conversations():
     """获取所有对话列表"""
@@ -127,17 +212,23 @@ def get_all_conversations():
         for filename in os.listdir(CONVERSATIONS_DIR):
             if filename.endswith('.json'):
                 conversation_id = filename.replace('.json', '')
-                messages = load_conversation(conversation_id)
-                if messages:
-                    # 查找第一个用户消息
-                    first_user_message = next((msg['content'] for msg in messages if msg['role'] == 'user'), "新对话")
-                    # 使用前5个字符作为标题，如果不足5个字符则使用全部
-                    title = first_user_message[:5] if len(first_user_message) > 5 else first_user_message
-                    conversations.append({
-                        'id': conversation_id,
-                        'title': title,
-                        'last_message_time': os.path.getmtime(os.path.join(CONVERSATIONS_DIR, filename))
-                    })
+                try:
+                    messages = load_conversation(conversation_id)
+                    if messages:
+                        # 查找第一个用户消息
+                        first_user_message = next((msg['content'] for msg in messages if msg['role'] == 'user'), "新对话")
+                        
+                        # 使用新的获取总结函数
+                        title = get_conversation_summary(conversation_id, first_user_message)
+                        
+                        conversations.append({
+                            'id': conversation_id,
+                            'title': title,
+                            'last_message_time': os.path.getmtime(os.path.join(CONVERSATIONS_DIR, filename))
+                        })
+                except Exception as e:
+                    print(f"处理对话文件 {conversation_id} 时出错: {e}")
+                    continue
     return sorted(conversations, key=lambda x: x['last_message_time'], reverse=True)
 
 def limit_conversation_history(messages, max_rounds=3):
@@ -274,7 +365,19 @@ def run_agent(user_input, conversation_id=None):
                     })
         else:
             # 没有工具调用时返回最终回复
-            save_conversation(conversation_id, messages)
+            # 如果这是新对话的第一轮，生成AI总结
+            user_messages = [msg for msg in messages if msg['role'] == 'user']
+            if len(user_messages) == 1 and conversation_id not in conversation_summary_cache:
+                first_user_message = user_messages[0]['content']
+                print(f"为新对话生成总结: {conversation_id}")
+                summary = generate_conversation_summary(first_user_message)
+                conversation_summary_cache[conversation_id] = summary
+                # 保存对话文件，包含总结
+                save_conversation(conversation_id, messages, summary)
+            else:
+                # 保存对话文件
+                save_conversation(conversation_id, messages)
+            
             return {"response": message.content.strip(), "conversation_id": conversation_id}
     
     # 如果超过最大迭代次数，返回错误信息
