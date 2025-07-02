@@ -140,10 +140,54 @@ def get_all_conversations():
                     })
     return sorted(conversations, key=lambda x: x['last_message_time'], reverse=True)
 
+def limit_conversation_history(messages, max_rounds=3):
+    """限制对话历史为最多指定轮数"""
+    if not messages:
+        return messages
+    
+    # 找到系统消息
+    system_messages = [msg for msg in messages if msg['role'] == 'system']
+    # 找到非系统消息
+    non_system_messages = [msg for msg in messages if msg['role'] != 'system']
+    
+    # 按用户消息分组来确定轮数
+    rounds = []
+    current_round = []
+    
+    for msg in non_system_messages:
+        if msg['role'] == 'user':
+            # 开始新的一轮
+            if current_round:
+                rounds.append(current_round)
+            current_round = [msg]
+        else:
+            # 添加到当前轮
+            current_round.append(msg)
+    
+    # 添加最后一轮（如果存在）
+    if current_round:
+        rounds.append(current_round)
+    
+    # 只保留最近的max_rounds轮对话
+    recent_rounds = rounds[-max_rounds:] if len(rounds) > max_rounds else rounds
+    
+    # 重建消息列表：系统消息 + 限制后的对话历史
+    limited_messages = system_messages[:]
+    for round_messages in recent_rounds:
+        limited_messages.extend(round_messages)
+    
+    return limited_messages
+
 def run_agent(user_input, conversation_id=None):
     """运行智能体对话"""
     if conversation_id:
         messages = load_conversation(conversation_id)
+        # 确保有系统消息
+        if not messages or messages[0].get('role') != 'system':
+            system_msg = {"role": "system", "content":"你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"}
+            messages = [system_msg] + messages
+        # 限制历史对话为最多3轮
+        messages = limit_conversation_history(messages, max_rounds=3)
     else:
         conversation_id = str(uuid.uuid4())
         messages = [{"role": "system", "content":"你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"}]
