@@ -342,6 +342,57 @@ body {
     background: rgba(255, 255, 255, 0.5);
 }
 
+/* 打字指示器样式 */
+.typing-indicator .message-content {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    padding: 15px 20px !important;
+}
+
+.typing-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.typing-dots .dot {
+    width: 8px;
+    height: 8px;
+    background: #ff4d6d;
+    border-radius: 50%;
+    animation: typingDots 1.4s infinite ease-in-out;
+}
+
+.typing-dots .dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-dots .dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.typing-dots .dot:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes typingDots {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .container {

@@ -57,13 +57,16 @@ class ChatApp {
         const message = this.chatInput.value.trim();
         if (!message || this.isLoading) return;
 
-        // 清空输入框并显示用户消息
+        // 清空输入框并立即显示用户消息
         this.chatInput.value = '';
         this.addMessage(message, 'user');
         this.updateSendButtonState();
 
-        // 显示加载状态
-        this.showLoading(true);
+        // 添加跳动点提示AI正在思考
+        this.addTypingIndicator();
+        
+        // 设置加载状态但不显示全局loading
+        this.isLoading = true;
 
         try {
             const response = await fetch('/api/chat', {
@@ -90,7 +93,8 @@ class ChatApp {
             // 更新当前对话ID
             this.currentConversationId = data.conversation_id;
             
-            // 显示AI回复
+            // 移除跳动点并显示AI回复
+            this.removeTypingIndicator();
             this.addMessage(data.response, 'bot');
             
             // 重新加载对话列表
@@ -100,7 +104,10 @@ class ChatApp {
             console.error('发送消息失败:', error);
             this.addMessage('抱歉，发送消息时出现错误，请稍后再试。', 'bot', true);
         } finally {
-            this.showLoading(false);
+            // 移除跳动点并恢复状态
+            this.removeTypingIndicator();
+            this.isLoading = false;
+            this.updateSendButtonState();
         }
     }
 
@@ -146,6 +153,11 @@ class ChatApp {
     // 开始新对话
     async startNewConversation() {
         try {
+            // 如果当前有对话且有消息，先保存当前对话
+            if (this.currentConversationId && this.hasMessages()) {
+                await this.saveCurrentConversation();
+            }
+
             const response = await fetch('/api/conversation/new', {
                 method: 'POST',
                 headers: {
@@ -289,6 +301,109 @@ class ChatApp {
         } finally {
             this.showLoading(false);
         }
+    }
+
+    // 添加打字指示器（跳动点）
+    addTypingIndicator() {
+        // 如果已存在打字指示器，则不重复添加
+        if (document.querySelector('.typing-indicator')) return;
+        
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content typing-content';
+        
+        messageContent.innerHTML = `
+            <div class="typing-dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        `;
+        
+        typingDiv.appendChild(messageContent);
+        this.chatMessages.appendChild(typingDiv);
+        
+        // 滚动到底部
+        this.scrollToBottom();
+    }
+
+    // 移除打字指示器
+    removeTypingIndicator() {
+        const typingIndicator = document.querySelector('.typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    // 检查当前是否有消息（除了欢迎消息）
+    hasMessages() {
+        const messages = this.chatMessages.querySelectorAll('.message');
+        // 排除欢迎消息，检查是否有用户或AI的对话消息
+        const conversationMessages = Array.from(messages).filter(msg => 
+            !msg.closest('.welcome-message') && !msg.classList.contains('typing-indicator')
+        );
+        return conversationMessages.length > 0;
+    }
+
+    // 保存当前对话
+    async saveCurrentConversation() {
+        if (!this.currentConversationId) return;
+        
+        try {
+            // 收集当前对话的所有消息
+            const messages = this.collectCurrentMessages();
+            
+            const response = await fetch('/api/conversation/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    conversation_id: this.currentConversationId,
+                    messages: messages
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+        } catch (error) {
+            console.error('保存对话失败:', error);
+        }
+    }
+
+    // 收集当前对话的消息
+    collectCurrentMessages() {
+        const messages = [];
+        const messageElements = this.chatMessages.querySelectorAll('.message');
+        
+        messageElements.forEach(msgElement => {
+            // 跳过欢迎消息和打字指示器
+            if (msgElement.closest('.welcome-message') || 
+                msgElement.classList.contains('typing-indicator')) {
+                return;
+            }
+            
+            const content = msgElement.querySelector('.message-content').textContent.trim();
+            const role = msgElement.classList.contains('user-message') ? 'user' : 'assistant';
+            
+            if (content) {
+                messages.push({
+                    role: role,
+                    content: content
+                });
+            }
+        });
+        
+        return messages;
     }
 
     // 格式化时间显示

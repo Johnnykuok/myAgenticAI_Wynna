@@ -112,8 +112,12 @@ def load_conversation(conversation_id):
     """从文件加载对话历史"""
     conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
     if os.path.exists(conversation_file):
-        with open(conversation_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(conversation_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"JSON解析错误 {conversation_id}: {e}")
+            return []
     return []
 
 def get_all_conversations():
@@ -125,10 +129,13 @@ def get_all_conversations():
                 conversation_id = filename.replace('.json', '')
                 messages = load_conversation(conversation_id)
                 if messages:
+                    # 查找第一个用户消息
                     first_user_message = next((msg['content'] for msg in messages if msg['role'] == 'user'), "新对话")
+                    # 使用前5个字符作为标题，如果不足5个字符则使用全部
+                    title = first_user_message[:5] if len(first_user_message) > 5 else first_user_message
                     conversations.append({
                         'id': conversation_id,
-                        'title': first_user_message[:30] + ('...' if len(first_user_message) > 30 else ''),
+                        'title': title,
                         'last_message_time': os.path.getmtime(os.path.join(CONVERSATIONS_DIR, filename))
                     })
     return sorted(conversations, key=lambda x: x['last_message_time'], reverse=True)
@@ -278,6 +285,30 @@ def new_conversation():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/conversation/save', methods=['POST'])
+def save_conversation_endpoint():
+    try:
+        data = request.json
+        conversation_id = data.get('conversation_id')
+        messages = data.get('messages', [])
+        
+        if not conversation_id:
+            return jsonify({'error': '对话ID不能为空'}), 400
+        
+        # 添加系统消息到消息开头（如果不存在）
+        if not messages or messages[0].get('role') != 'system':
+            messages.insert(0, {
+                "role": "system", 
+                "content": "你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"
+            })
+        
+        # 保存对话
+        save_conversation(conversation_id, messages)
+        
+        return jsonify({'success': True, 'message': '对话保存成功'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # 运行Flask应用
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=8090)
+    app.run(debug=True, host='0.0.0.0', port=8070)
