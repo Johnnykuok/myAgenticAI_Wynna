@@ -103,18 +103,37 @@ def get_current_time():
     except Exception as e:
         return json.dumps({"status": "error", "message": f"获取时间失败: {str(e)}"})
 
-def save_conversation(conversation_id, messages, summary=None):
+def save_conversation(conversation_id, messages, summary=None, mode=None):
     """保存对话历史到文件"""
     conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
     
-    # 如果有总结，将其添加到数据中
+    # 加载现有数据（如果存在）
+    existing_data = {}
+    if os.path.exists(conversation_file):
+        try:
+            with open(conversation_file, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+        except:
+            pass
+    
+    # 构建新数据
     data = {
         "messages": messages
     }
+    
+    # 保留或更新总结
     if summary:
         data["summary"] = summary
     elif conversation_id in conversation_summary_cache:
         data["summary"] = conversation_summary_cache[conversation_id]
+    elif "summary" in existing_data:
+        data["summary"] = existing_data["summary"]
+    
+    # 保留或更新模式信息
+    if mode:
+        data["mode"] = mode
+    elif "mode" in existing_data:
+        data["mode"] = existing_data["mode"]
     
     with open(conversation_file, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -153,34 +172,60 @@ def generate_conversation_summary(user_message):
             messages=[
                 {
                     "role": "system",
-                    "content": "为user生成一个summary，summary是一个简短的总结，不超过10个字，只返回summary，不要输出任何其他内容："
+                    "content": """为用户消息生成一个简短的总结，用于对话历史显示。
+
+请以JSON格式输出，格式如下：
+{
+    "summary": "简短总结"
+}
+
+要求：
+1. summary不超过16个中文字符
+2. 要准确概括用户消息的核心内容
+3. 避免使用标点符号和引号"""
                 },
                 {
                     "role": "user", 
-                    "content": user_message[:100]  # 限制输入长度
+                    "content": user_message[:200]  # 增加输入长度限制
                 }
             ],
-            max_tokens=15,
-            temperature=0.1
+            max_tokens=20,  # 增加token限制
+            temperature=0.1,
+            response_format={
+                'type': 'json_object'
+            }
         )
         
-        summary = response.choices[0].message.content.strip()
+        result = json.loads(response.choices[0].message.content)
+        summary = result.get("summary", "").strip()
+        
         # 清理可能的引号或标点
         summary = summary.strip('"\'""''。！？，：')
-        # 确保不超过10个字符
-        if len(summary) > 10:
-            summary = summary[:10]
+        
+        # 确保不超过8个中文字符
+        if len(summary) > 16:
+            summary = summary[:16]
         
         # 如果生成的内容为空，使用回退方案
         if not summary:
-            summary = user_message[:5] if len(user_message) > 5 else user_message
-            
+            # 智能提取用户消息的前几个字符作为总结
+            clean_message = user_message.strip()
+            if len(clean_message) > 8:
+                summary = clean_message[:8]
+            else:
+                summary = clean_message if clean_message else "新对话"
+        
+        print(f"生成对话总结成功: '{summary}'")
         return summary
         
     except Exception as e:
         print(f"生成对话总结失败: {e}")
         # 失败时回退到原来的逻辑
-        return user_message[:5] if len(user_message) > 5 else user_message
+        clean_message = user_message.strip()
+        if len(clean_message) > 8:
+            return clean_message[:8]
+        else:
+            return clean_message if clean_message else "新对话"
 
 def judge_question_type(user_message):
     """判断用户问题类型：chatbot模式 vs 任务规划模式"""
@@ -245,18 +290,41 @@ def decompose_task(user_message):
             messages=[
                 {
                     "role": "system",
-                    "content": "你是一个任务拆解专家，你会把用户的问题拆解为小的步骤，并输出所有分点的小步骤。请用数字编号列出各个步骤，格式如：1. 步骤一 2. 步骤二 等等。"
+                    "content": """你是一个复杂任务的拆解专家，你会把用户的问题拆解为小的步骤。
+
+请以JSON格式输出拆解结果，格式如下：
+{
+    "tasks": [
+        "步骤一的具体描述",
+        "步骤二的具体描述",
+        "步骤三的具体描述"
+    ],
+    "markdown": "# TODO\n\n1. 步骤一的具体描述\n2. 步骤二的具体描述\n3. 步骤三的具体描述"
+}
+
+其中tasks为拆解后的任务列表，markdown为to_do.md格式的内容。"""
                 },
                 {
                     "role": "user", 
                     "content": user_message
                 }
             ],
-            max_tokens=300,
-            temperature=0.3
+            max_tokens=500,
+            temperature=0.3,
+            response_format={
+                'type': 'json_object'
+            }
         )
         
-        return response.choices[0].message.content.strip()
+        result = json.loads(response.choices[0].message.content)
+        tasks = result.get("tasks", [])
+        markdown = result.get("markdown", "")
+        
+        # 记录拆解结果
+        print(f"任务拆解成功，共{len(tasks)}个步骤")
+        
+        # 返回markdown格式，保持与原有代码兼容
+        return markdown
         
     except Exception as e:
         print(f"任务拆解失败: {e}")
@@ -332,10 +400,39 @@ def get_conversation_summary(conversation_id, first_user_message):
         except:
             pass
     
-    # 对于旧对话，暂时使用前5个字符，避免频繁调用API
-    fallback = first_user_message[:5] if len(first_user_message) > 5 else first_user_message
-    conversation_summary_cache[conversation_id] = fallback
-    return fallback
+    # 对于没有总结的对话，返回加载中状态，并启动异步生成
+    conversation_summary_cache[conversation_id] = "..."  # 加载中状态
+    
+    # 异步生成总结
+    def generate_summary_async():
+        try:
+            summary = generate_conversation_summary(first_user_message)
+            conversation_summary_cache[conversation_id] = summary
+            # 更新文件中的总结
+            if os.path.exists(conversation_file):
+                try:
+                    with open(conversation_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                    if isinstance(data, dict):
+                        data["summary"] = summary
+                    else:
+                        data = {"messages": data, "summary": summary}
+                    with open(conversation_file, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+                except:
+                    pass
+        except Exception as e:
+            print(f"异步生成总结失败: {e}")
+            # 失败时使用回退方案
+            fallback = first_user_message[:8] if len(first_user_message) > 8 else first_user_message
+            conversation_summary_cache[conversation_id] = fallback
+    
+    # 启动后台线程生成总结
+    thread = threading.Thread(target=generate_summary_async)
+    thread.daemon = True  # 设置为守护线程
+    thread.start()
+    
+    return "..."  # 返回加载中状态
 
 def get_all_conversations():
     """获取所有对话列表"""
@@ -401,7 +498,7 @@ def limit_conversation_history(messages, max_rounds=3):
     
     return limited_messages
 
-def run_agent(user_input, conversation_id=None):
+def run_agent(user_input, conversation_id=None, mode=None):
     """运行智能体对话"""
     if conversation_id:
         messages = load_conversation(conversation_id)
@@ -416,6 +513,42 @@ def run_agent(user_input, conversation_id=None):
         messages = [{"role": "system", "content":"你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"}]
     
     messages.append({"role": "user", "content": user_input})
+    
+    # 检查是否是新对话的第一条用户消息
+    user_messages = [msg for msg in messages if msg['role'] == 'user']
+    is_new_conversation = len(user_messages) == 1
+    
+    # 如果是新对话，立即保存并启动总结生成
+    if is_new_conversation:
+        # 立即设置加载状态
+        conversation_summary_cache[conversation_id] = "..."
+        
+        # 先保存初始对话（此时还没有模式信息）
+        save_conversation(conversation_id, messages)
+        # 启动异步生成总结
+        first_user_message = user_input
+        print(f"启动新对话总结生成: {conversation_id}")
+        
+        def generate_summary_for_new_conversation():
+            try:
+                # 稍微延迟一下，确保前端能看到加载状态
+                import time
+                time.sleep(0.5)
+                summary = generate_conversation_summary(first_user_message)
+                conversation_summary_cache[conversation_id] = summary
+                # 重新保存对话文件，包含总结
+                save_conversation(conversation_id, messages, summary)
+                print(f"新对话总结生成完成: {conversation_id} -> {summary}")
+            except Exception as e:
+                print(f"新对话总结生成失败: {e}")
+                # 失败时使用回退方案
+                fallback = first_user_message[:8] if len(first_user_message) > 8 else first_user_message
+                conversation_summary_cache[conversation_id] = fallback
+        
+        # 启动后台线程生成总结
+        thread = threading.Thread(target=generate_summary_for_new_conversation)
+        thread.daemon = True
+        thread.start()
     
     # 限制最大循环次数，避免无限循环
     max_iterations = 10
@@ -505,12 +638,12 @@ def run_agent(user_input, conversation_id=None):
                 summary = generate_conversation_summary(first_user_message)
                 conversation_summary_cache[conversation_id] = summary
                 # 保存对话文件，包含总结
-                save_conversation(conversation_id, messages, summary)
+                save_conversation(conversation_id, messages, summary, mode)
             else:
                 # 保存对话文件
-                save_conversation(conversation_id, messages)
+                save_conversation(conversation_id, messages, mode=mode)
             
-            return {"response": message.content.strip(), "conversation_id": conversation_id}
+            return {"response": message.content.strip(), "conversation_id": conversation_id, "mode": mode}
     
     # 如果超过最大迭代次数，返回错误信息
     save_conversation(conversation_id, messages)
@@ -543,7 +676,7 @@ def chat():
             result = handle_task_planning(user_input, conversation_id)
         else:
             # chatBot模式
-            result = run_agent(user_input, conversation_id)
+            result = run_agent(user_input, conversation_id, mode=question_type)
         
         # 添加模式信息到返回结果
         result['mode'] = question_type
@@ -566,7 +699,7 @@ def handle_task_planning(user_input, conversation_id=None):
         {"role": "assistant", "content": f"我来帮你分析这个任务～这是一个比较复杂的问题，我把它拆解成了以下几个步骤：\n\n{decomposed_tasks}\n\n请确认这些步骤是否合适，或者你可以编辑后提交。确认后我会逐步为你完成每个任务哦！"}
     ]
     
-    save_conversation(conversation_id, messages)
+    save_conversation(conversation_id, messages, mode="taskPlanning")
     
     return {
         "response": f"我来帮你分析这个任务～这是一个比较复杂的问题，我把它拆解成了以下几个步骤：\n\n{decomposed_tasks}\n\n请确认这些步骤是否合适，或者你可以编辑后提交。确认后我会逐步为你完成每个任务哦！",
@@ -623,11 +756,43 @@ def get_conversations():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/conversations/refresh', methods=['GET'])
+def refresh_conversations():
+    """刷新对话列表，用于获取异步生成的总结"""
+    try:
+        conversations = get_all_conversations()
+        return jsonify(conversations)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/conversation/<conversation_id>', methods=['GET'])
 def get_conversation(conversation_id):
     try:
-        messages = load_conversation(conversation_id)
-        return jsonify(messages)
+        # 加载完整的对话数据
+        conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
+        if os.path.exists(conversation_file):
+            with open(conversation_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    # 新格式，包含messages和其他信息
+                    return jsonify({
+                        "messages": data.get("messages", []),
+                        "mode": data.get("mode"),
+                        "summary": data.get("summary")
+                    })
+                else:
+                    # 旧格式，只有消息列表
+                    return jsonify({
+                        "messages": data,
+                        "mode": None,
+                        "summary": None
+                    })
+        else:
+            return jsonify({
+                "messages": [],
+                "mode": None,
+                "summary": None
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -666,3 +831,5 @@ def save_conversation_endpoint():
 # 运行Flask应用
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=8070)
+
+

@@ -4,9 +4,11 @@ class ChatApp {
         this.isLoading = false;
         this.currentMode = null;
         this.pendingTaskData = null;
+        this.refreshInterval = null; // 刷新对话列表的定时器
         this.initializeElements();
         this.bindEvents();
         this.loadConversations();
+        this.startAutoRefresh(); // 启动自动刷新
     }
 
     // 初始化DOM元素
@@ -82,6 +84,9 @@ class ChatApp {
                     conversation_id: this.currentConversationId
                 })
             });
+            
+            // 立即刷新对话列表（显示新对话和加载动画）
+            this.loadConversations();
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -109,7 +114,7 @@ class ChatApp {
                 this.addMessage(data.response, 'bot');
             }
             
-            // 重新加载对话列表
+            // 再次刷新对话列表（确保对话ID正确并显示最新状态）
             this.loadConversations();
 
         } catch (error) {
@@ -192,6 +197,9 @@ class ChatApp {
             this.clearMessages();
             this.showWelcomeMessage();
             
+            // 重置模式状态为默认状态
+            this.updateModeStatus(null);
+            
             // 重新加载对话列表
             this.loadConversations();
 
@@ -260,14 +268,44 @@ class ChatApp {
                 convDiv.classList.add('active');
             }
             
+            // 处理加载中的总结，显示跳动点动画
+            let titleHtml = conv.title;
+            if (conv.title === '...') {
+                titleHtml = '<span class="loading-dots">生成中<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+            }
+            
             convDiv.innerHTML = `
-                <div class="conversation-title">${conv.title}</div>
+                <div class="conversation-title">${titleHtml}</div>
                 <div class="conversation-time">${this.formatTime(conv.last_message_time)}</div>
             `;
             
             convDiv.addEventListener('click', () => this.loadConversation(conv.id));
             this.conversationHistory.appendChild(convDiv);
         });
+    }
+    
+    // 启动自动刷新对话列表
+    startAutoRefresh() {
+        // 每3秒刷新一次对话列表，用于更新异步生成的总结
+        this.refreshInterval = setInterval(async () => {
+            try {
+                const response = await fetch('/api/conversations/refresh');
+                if (response.ok) {
+                    const conversations = await response.json();
+                    this.renderConversations(conversations);
+                }
+            } catch (error) {
+                console.error('自动刷新对话列表失败:', error);
+            }
+        }, 3000);
+    }
+    
+    // 停止自动刷新
+    stopAutoRefresh() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
     }
 
     // 加载特定对话
@@ -283,14 +321,18 @@ class ChatApp {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const messages = await response.json();
+            const data = await response.json();
             
             // 更新当前对话ID
             this.currentConversationId = conversationId;
             
+            // 更新模式状态
+            this.updateModeStatus(data.mode);
+            
             // 清空并重新渲染消息
             this.clearMessages();
             
+            const messages = data.messages || data; // 兼容新旧格式
             messages.forEach(message => {
                 if (message.role === 'user') {
                     this.addMessage(message.content, 'user');
@@ -451,14 +493,14 @@ class ChatApp {
         statusElement.className = '';
         
         if (mode === 'chatBot') {
-            statusElement.textContent = 'chatBot模式已开启';
+            statusElement.innerHTML = '<span class="mode-icon">💬</span> 聊天模式';
             statusElement.className = 'mode-status mode-chatbot';
         } else if (mode === 'taskPlanning') {
-            statusElement.textContent = '任务规划模式已开启';
+            statusElement.innerHTML = '<span class="mode-icon">📋</span> 任务规划';
             statusElement.className = 'mode-status mode-planning';
         } else {
-            statusElement.textContent = '可开启chatBot模式或任务规划模式';
-            statusElement.className = '';
+            statusElement.innerHTML = '<span class="mode-icon">🤖</span> 智能助手';
+            statusElement.className = 'mode-status mode-default';
         }
     }
 

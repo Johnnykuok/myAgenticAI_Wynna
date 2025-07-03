@@ -14,41 +14,44 @@ body {
 
 /* 模式状态样式 */
 .mode-status {
-    display: inline-block;
-    font-weight: bold;
-    padding: 2px 8px;
-    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 20px;
     margin-left: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.mode-icon {
+    margin-right: 6px;
+    font-size: 14px;
 }
 
 .mode-chatbot {
-    color: #00ff00;
-    background: rgba(0, 255, 0, 0.1);
-    animation: chatbot-glow 2s ease-in-out infinite alternate;
+    color: #2563eb;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: #93c5fd;
 }
 
 .mode-planning {
-    color: #ff0000;
-    background: rgba(255, 0, 0, 0.1);
-    animation: planning-glow 2s ease-in-out infinite alternate;
+    color: #dc2626;
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    border-color: #fca5a5;
 }
 
-@keyframes chatbot-glow {
-    from {
-        text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
-    }
-    to {
-        text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
-    }
+.mode-default {
+    color: #6b7280;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border-color: #d1d5db;
 }
 
-@keyframes planning-glow {
-    from {
-        text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff0000;
-    }
-    to {
-        text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
-    }
+/* 悬停效果 */
+.mode-status:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .container {
@@ -428,6 +431,48 @@ body {
     }
     40% {
         transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* 对话列表中的加载动画 */
+.loading-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: #999;
+    font-size: 12px;
+}
+
+.loading-dots .dot {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    background: #ff4d6d;
+    border-radius: 50%;
+    animation: loadingDots 1.4s infinite ease-in-out;
+    margin-left: 1px;
+}
+
+.loading-dots .dot:nth-child(2) {
+    animation-delay: -0.32s;
+}
+
+.loading-dots .dot:nth-child(3) {
+    animation-delay: -0.16s;
+}
+
+.loading-dots .dot:nth-child(4) {
+    animation-delay: 0s;
+}
+
+@keyframes loadingDots {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.3;
+    }
+    40% {
+        transform: scale(1);
         opacity: 1;
     }
 }
