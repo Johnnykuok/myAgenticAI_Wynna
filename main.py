@@ -192,7 +192,22 @@ def generate_conversation_summary(user_message):
             max_tokens=20,  # 增加token限制
             temperature=0.1,
             response_format={
-                'type': 'json_object'
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "conversation_summary",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "summary": {
+                                "type": "string",
+                                "description": "对话的简短总结，不超过16个中文字符"
+                            }
+                        },
+                        "required": ["summary"],
+                        "additionalProperties": False
+                    },
+                    "strict": True
+                }
             }
         )
         
@@ -263,7 +278,31 @@ def judge_question_type(user_message):
             max_tokens=150,
             temperature=0.1,
             response_format={
-                'type': 'json_object'
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "question_type_judgment",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": ["chatBot", "taskPlanning"],
+                                "description": "问题类型，只能是chatBot或taskPlanning"
+                            },
+                            "confidence": {
+                                "type": "number",
+                                "description": "判断的置信度，范围0-1"
+                            },
+                            "reason": {
+                                "type": "string",
+                                "description": "判断理由"
+                            }
+                        },
+                        "required": ["type", "confidence", "reason"],
+                        "additionalProperties": False
+                    },
+                    "strict": True
+                }
             }
         )
         
@@ -312,7 +351,30 @@ def decompose_task(user_message):
             max_tokens=500,
             temperature=0.3,
             response_format={
-                'type': 'json_object'
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "task_decomposition",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "tasks": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "description": "具体的任务步骤描述"
+                                },
+                                "description": "拆解后的任务步骤列表"
+                            },
+                            "markdown": {
+                                "type": "string",
+                                "description": "TODO格式的markdown内容"
+                            }
+                        },
+                        "required": ["tasks", "markdown"],
+                        "additionalProperties": False
+                    },
+                    "strict": True
+                }
             }
         )
         
