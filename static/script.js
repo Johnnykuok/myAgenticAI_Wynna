@@ -2,6 +2,8 @@ class ChatApp {
     constructor() {
         this.currentConversationId = null;
         this.isLoading = false;
+        this.currentMode = null;
+        this.pendingTaskData = null;
         this.initializeElements();
         this.bindEvents();
         this.loadConversations();
@@ -15,6 +17,7 @@ class ChatApp {
         this.newChatBtn = document.getElementById('new-chat-btn');
         this.conversationHistory = document.getElementById('conversation-history');
         this.loading = document.getElementById('loading');
+        this.modeStatus = document.getElementById('mode-status');
     }
 
     // 绑定事件监听器
@@ -93,9 +96,18 @@ class ChatApp {
             // 更新当前对话ID
             this.currentConversationId = data.conversation_id;
             
+            // 更新模式状态
+            this.updateModeStatus(data.mode);
+            
             // 移除跳动点并显示AI回复
             this.removeTypingIndicator();
-            this.addMessage(data.response, 'bot');
+            
+            // 处理不同模式的响应
+            if (data.mode === 'taskPlanning' && data.status === 'waiting_confirmation') {
+                this.handleTaskPlanningResponse(data);
+            } else {
+                this.addMessage(data.response, 'bot');
+            }
             
             // 重新加载对话列表
             this.loadConversations();
@@ -429,9 +441,124 @@ class ChatApp {
             });
         }
     }
+
+    // 更新模式状态显示
+    updateModeStatus(mode) {
+        this.currentMode = mode;
+        const statusElement = this.modeStatus;
+        
+        // 清除之前的类
+        statusElement.className = '';
+        
+        if (mode === 'chatBot') {
+            statusElement.textContent = 'chatBot模式已开启';
+            statusElement.className = 'mode-status mode-chatbot';
+        } else if (mode === 'taskPlanning') {
+            statusElement.textContent = '任务规划模式已开启';
+            statusElement.className = 'mode-status mode-planning';
+        } else {
+            statusElement.textContent = '可开启chatBot模式或任务规划模式';
+            statusElement.className = '';
+        }
+    }
+
+    // 处理任务规划模式的响应
+    handleTaskPlanningResponse(data) {
+        // 显示任务分解结果
+        this.addMessage(data.response, 'bot');
+        
+        // 保存任务数据以备后续使用
+        this.pendingTaskData = {
+            conversation_id: data.conversation_id,
+            original_question: data.original_question,
+            decomposed_tasks: data.decomposed_tasks
+        };
+        
+        // 添加确认按钮
+        this.addTaskConfirmationButtons();
+    }
+
+    // 添加任务确认按钮
+    addTaskConfirmationButtons() {
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'task-confirmation-buttons';
+        buttonContainer.innerHTML = `
+            <div style="margin: 10px 0;">
+                <textarea id="task-editor" style="width: 100%; height: 100px; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="你可以编辑任务步骤..."></textarea>
+                <button onclick="chatApp.confirmTasks()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">确认并执行</button>
+                <button onclick="chatApp.cancelTasks()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">取消</button>
+            </div>
+        `;
+        
+        // 将任务步骤填入编辑器
+        const taskEditor = buttonContainer.querySelector('#task-editor');
+        if (this.pendingTaskData && this.pendingTaskData.decomposed_tasks) {
+            taskEditor.value = this.pendingTaskData.decomposed_tasks;
+        }
+        
+        this.chatMessages.appendChild(buttonContainer);
+        this.scrollToBottom();
+    }
+
+    // 确认任务
+    async confirmTasks() {
+        if (!this.pendingTaskData) return;
+        
+        const taskEditor = document.getElementById('task-editor');
+        const confirmedTasks = taskEditor.value.trim().split('\n').filter(task => task.trim());
+        
+        try {
+            this.removeTaskButtons();
+            this.addTypingIndicator();
+            
+            const response = await fetch('/api/confirm-tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    conversation_id: this.pendingTaskData.conversation_id,
+                    original_question: this.pendingTaskData.original_question,
+                    tasks: confirmedTasks
+                })
+            });
+            
+            const data = await response.json();
+            
+            this.removeTypingIndicator();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            this.addMessage(data.response, 'bot');
+            this.pendingTaskData = null;
+            
+        } catch (error) {
+            console.error('确认任务失败:', error);
+            this.removeTypingIndicator();
+            this.addMessage('确认任务时出现错误，请稍后再试。', 'bot', true);
+        }
+    }
+
+    // 取消任务
+    cancelTasks() {
+        this.removeTaskButtons();
+        this.pendingTaskData = null;
+        this.addMessage('已取消任务规划。', 'bot');
+    }
+
+    // 移除任务按钮
+    removeTaskButtons() {
+        const buttons = document.querySelector('.task-confirmation-buttons');
+        if (buttons) {
+            buttons.remove();
+        }
+    }
 }
 
 // 页面加载完成后初始化应用
+let chatApp;
 document.addEventListener('DOMContentLoaded', () => {
-    new ChatApp();
+    chatApp = new ChatApp();
 });

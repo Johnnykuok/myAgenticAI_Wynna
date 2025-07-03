@@ -153,7 +153,7 @@ def generate_conversation_summary(user_message):
             messages=[
                 {
                     "role": "system",
-                    "content": "为我总结用户输入的内容的summary，summary是一个简短的总结，生成不超过10字的总结，只返回summary，不要输出任何其他内容："
+                    "content": "为user生成一个summary，summary是一个简短的总结，不超过10个字，只返回summary，不要输出任何其他内容："
                 },
                 {
                     "role": "user", 
@@ -181,6 +181,138 @@ def generate_conversation_summary(user_message):
         print(f"生成对话总结失败: {e}")
         # 失败时回退到原来的逻辑
         return user_message[:5] if len(user_message) > 5 else user_message
+
+def judge_question_type(user_message):
+    """判断用户问题类型：chatbot模式 vs 任务规划模式"""
+    try:
+        response = client.chat.completions.create(
+            model="doubao-seed-1-6-flash-250615",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """你是一个问题类型判断专家。请判断用户的问题属于以下哪种类型：
+1. chatBot模式：简单且常规的聊天类问题，如"现在几点了"、"杭州天气如何"、"你叫什么名字"、"你好"、"帮我写个故事"、"解释一下人工智能"等日常对话或简单咨询。
+2. taskPlanning模式：复杂的任务规划类问题，需要多步骤完成，如"为我制定8月份去杭州的旅游攻略"、"为我调研快手2024年的财报"、"帮我分析市场趋势并制定商业计划"等。
+
+请以JSON格式输出判断结果，格式如下：
+{
+    "type": "chatBot",
+    "confidence": 0.95,
+    "reason": "这是一个简单的日常咨询问题"
+}
+
+或者：
+{
+    "type": "taskPlanning", 
+    "confidence": 0.88,
+    "reason": "这是一个需要多步骤完成的复杂任务"
+}
+
+其中type只能是"chatBot"或"taskPlanning"，confidence为0-1之间的置信度，reason为判断理由。"""
+                },
+                {
+                    "role": "user", 
+                    "content": user_message
+                }
+            ],
+            max_tokens=150,
+            temperature=0.1,
+            response_format={
+                'type': 'json_object'
+            }
+        )
+        
+        result = json.loads(response.choices[0].message.content)
+        question_type = result.get("type", "chatBot")
+        confidence = result.get("confidence", 0.5)
+        reason = result.get("reason", "")
+        
+        # 记录判断结果
+        print(f"问题类型判断: {question_type}, 置信度: {confidence}, 理由: {reason}")
+        
+        return question_type
+            
+    except Exception as e:
+        print(f"判断问题类型失败: {e}")
+        # 失败时默认为chatBot模式
+        return "chatBot"
+
+def decompose_task(user_message):
+    """任务拆解函数"""
+    try:
+        response = client.chat.completions.create(
+            model="doubao-seed-1-6-flash-250615",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "你是一个任务拆解专家，你会把用户的问题拆解为小的步骤，并输出所有分点的小步骤。请用数字编号列出各个步骤，格式如：1. 步骤一 2. 步骤二 等等。"
+                },
+                {
+                    "role": "user", 
+                    "content": user_message
+                }
+            ],
+            max_tokens=300,
+            temperature=0.3
+        )
+        
+        return response.choices[0].message.content.strip()
+        
+    except Exception as e:
+        print(f"任务拆解失败: {e}")
+        return f"任务拆解失败：{str(e)}"
+
+def solve_subtask(original_question, subtask):
+    """解决单个子任务"""
+    try:
+        response = client.chat.completions.create(
+            model="doubao-seed-1-6-flash-250615",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"你是一个问题解决专家，如下是用户的总问题：{original_question}，你现在要解决【{subtask}】这一步，请你输出解决方案。"
+                },
+                {
+                    "role": "user", 
+                    "content": f"请帮我完成：{subtask}"
+                }
+            ],
+            max_tokens=500,
+            temperature=0.3
+        )
+        
+        return response.choices[0].message.content.strip()
+        
+    except Exception as e:
+        print(f"解决子任务失败: {e}")
+        return f"解决子任务失败：{str(e)}"
+
+def summarize_solutions(original_question, solutions):
+    """汇总所有解决方案"""
+    try:
+        solutions_text = "\n\n".join([f"步骤{i+1}解决方案：\n{sol}" for i, sol in enumerate(solutions)])
+        
+        response = client.chat.completions.create(
+            model="doubao-seed-1-6-flash-250615",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"你是一个结果汇总专家。用户的原始问题是：{original_question}。请将以下各个步骤的解决方案进行整合汇总，形成一个完整的答案。"
+                },
+                {
+                    "role": "user", 
+                    "content": solutions_text
+                }
+            ],
+            max_tokens=800,
+            temperature=0.3
+        )
+        
+        return response.choices[0].message.content.strip()
+        
+    except Exception as e:
+        print(f"汇总解决方案失败: {e}")
+        return f"汇总解决方案失败：{str(e)}"
 
 def get_conversation_summary(conversation_id, first_user_message):
     """获取对话总结"""
@@ -403,8 +535,83 @@ def chat():
         return jsonify({'error': '消息不能为空'}), 400
     
     try:
-        result = run_agent(user_input, conversation_id)
+        # 首先判断问题类型
+        question_type = judge_question_type(user_input)
+        
+        if question_type == "taskPlanning":
+            # 任务规划模式
+            result = handle_task_planning(user_input, conversation_id)
+        else:
+            # chatBot模式
+            result = run_agent(user_input, conversation_id)
+        
+        # 添加模式信息到返回结果
+        result['mode'] = question_type
         return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def handle_task_planning(user_input, conversation_id=None):
+    """处理任务规划模式"""
+    if conversation_id is None:
+        conversation_id = str(uuid.uuid4())
+    
+    # 任务拆解
+    decomposed_tasks = decompose_task(user_input)
+    
+    # 保存初始对话
+    messages = [
+        {"role": "system", "content": "你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"},
+        {"role": "user", "content": user_input},
+        {"role": "assistant", "content": f"我来帮你分析这个任务～这是一个比较复杂的问题，我把它拆解成了以下几个步骤：\n\n{decomposed_tasks}\n\n请确认这些步骤是否合适，或者你可以编辑后提交。确认后我会逐步为你完成每个任务哦！"}
+    ]
+    
+    save_conversation(conversation_id, messages)
+    
+    return {
+        "response": f"我来帮你分析这个任务～这是一个比较复杂的问题，我把它拆解成了以下几个步骤：\n\n{decomposed_tasks}\n\n请确认这些步骤是否合适，或者你可以编辑后提交。确认后我会逐步为你完成每个任务哦！",
+        "conversation_id": conversation_id,
+        "mode": "taskPlanning",
+        "decomposed_tasks": decomposed_tasks,
+        "original_question": user_input,
+        "status": "waiting_confirmation"
+    }
+
+@app.route('/api/confirm-tasks', methods=['POST'])
+def confirm_tasks():
+    """确认任务分解结果"""
+    data = request.json
+    conversation_id = data.get('conversation_id')
+    confirmed_tasks = data.get('tasks', [])
+    original_question = data.get('original_question', '')
+    
+    if not conversation_id or not confirmed_tasks:
+        return jsonify({'error': '参数不完整'}), 400
+    
+    try:
+        # 逐个执行子任务
+        solutions = []
+        for task in confirmed_tasks:
+            solution = solve_subtask(original_question, task)
+            solutions.append(solution)
+        
+        # 汇总所有解决方案
+        final_summary = summarize_solutions(original_question, solutions)
+        
+        # 更新对话记录
+        messages = load_conversation(conversation_id)
+        messages.append({"role": "user", "content": f"确认任务分解，开始执行：{confirmed_tasks}"})
+        messages.append({"role": "assistant", "content": final_summary})
+        save_conversation(conversation_id, messages)
+        
+        return jsonify({
+            "response": final_summary,
+            "conversation_id": conversation_id,
+            "mode": "taskPlanning",
+            "status": "completed",
+            "solutions": solutions
+        })
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

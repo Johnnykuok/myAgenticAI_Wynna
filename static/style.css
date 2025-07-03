@@ -12,6 +12,45 @@ body {
     color: #333;
 }
 
+/* 模式状态样式 */
+.mode-status {
+    display: inline-block;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.mode-chatbot {
+    color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+    animation: chatbot-glow 2s ease-in-out infinite alternate;
+}
+
+.mode-planning {
+    color: #ff0000;
+    background: rgba(255, 0, 0, 0.1);
+    animation: planning-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes chatbot-glow {
+    from {
+        text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+    }
+    to {
+        text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+    }
+}
+
+@keyframes planning-glow {
+    from {
+        text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff0000;
+    }
+    to {
+        text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+    }
+}
+
 .container {
     display: flex;
     height: 100vh;
