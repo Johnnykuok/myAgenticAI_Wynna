@@ -7,16 +7,20 @@ from openai import OpenAI
 from datetime import datetime
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 # 初始化OpenAI客户端
 client = OpenAI(
-    base_url="https://ark.cn-beijing.volces.com/api/v3",
-    api_key="583ca88d-ba68-401d-ae86-f5b6d87ef08f"
+    base_url=os.getenv("DOUBAO_BASE_URL"),
+    api_key=os.getenv("DOUBAO_API_KEY")
 )
 
 # 高德天气API配置
-GAODE_API_KEY = "c8c31e524a0aaa6297ce0cf4a684059e"
-WEATHER_URL = "https://restapi.amap.com/v3/weather/weatherInfo"
+GAODE_API_KEY = os.getenv("GAODE_API_KEY")
+WEATHER_URL = os.getenv("GAODE_WEATHER_URL")
 
 # 初始化Flask应用
 app = Flask(__name__)
@@ -168,7 +172,7 @@ def generate_conversation_summary(user_message):
     """同步生成对话总结"""
     try:
         response = client.chat.completions.create(
-            model="doubao-seed-1-6-flash-250615",
+            model=os.getenv("DOUBAO_MODEL"),
             messages=[
                 {
                     "role": "system",
@@ -246,7 +250,7 @@ def judge_question_type(user_message):
     """判断用户问题类型：chatbot模式 vs 任务规划模式"""
     try:
         response = client.chat.completions.create(
-            model="doubao-seed-1-6-flash-250615",
+            model=os.getenv("DOUBAO_MODEL"),
             messages=[
                 {
                     "role": "system",
@@ -325,7 +329,7 @@ def decompose_task(user_message):
     """任务拆解函数"""
     try:
         response = client.chat.completions.create(
-            model="doubao-seed-1-6-flash-250615",
+            model=os.getenv("DOUBAO_MODEL"),
             messages=[
                 {
                     "role": "system",
@@ -396,7 +400,7 @@ def solve_subtask(original_question, subtask):
     """解决单个子任务"""
     try:
         response = client.chat.completions.create(
-            model="doubao-seed-1-6-flash-250615",
+            model=os.getenv("DOUBAO_MODEL"),
             messages=[
                 {
                     "role": "system",
@@ -423,7 +427,7 @@ def summarize_solutions(original_question, solutions):
         solutions_text = "\n\n".join([f"步骤{i+1}解决方案：\n{sol}" for i, sol in enumerate(solutions)])
         
         response = client.chat.completions.create(
-            model="doubao-seed-1-6-flash-250615",
+            model=os.getenv("DOUBAO_MODEL"),
             messages=[
                 {
                     "role": "system",
@@ -648,7 +652,7 @@ def run_agent(user_input, conversation_id=None, mode=None):
         try:
             # 调用模型获取响应
             response = client.chat.completions.create(
-                model="doubao-seed-1-6-flash-250615",  # 使用火山引擎指定模型
+                model=os.getenv("DOUBAO_MODEL"),  # 使用火山引擎指定模型
                 messages=messages,
                 tools=tools,
                 tool_choice="auto"
@@ -958,6 +962,10 @@ def delete_conversation(conversation_id):
 
 # 运行Flask应用
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=8070)
+    app.run(
+        debug=os.getenv("FLASK_DEBUG", "True").lower() == "true",
+        host=os.getenv("FLASK_HOST", "0.0.0.0"),
+        port=int(os.getenv("FLASK_PORT", 8070))
+    )
 
 
