@@ -515,8 +515,20 @@ def get_all_conversations():
                             # 使用消息的时间戳
                             conversation_time = first_user_msg_obj['timestamp']
                         else:
-                            # 回退到文件修改时间
-                            conversation_time = datetime.fromtimestamp(os.path.getmtime(os.path.join(CONVERSATIONS_DIR, filename))).isoformat()
+                            # 为没有时间戳的旧对话添加固定的创建时间
+                            file_path = os.path.join(CONVERSATIONS_DIR, filename)
+                            file_mtime = os.path.getmtime(file_path)
+                            conversation_time = datetime.fromtimestamp(file_mtime).isoformat()
+                            
+                            # 将时间戳保存到对话文件中，避免下次再次变化
+                            try:
+                                # 为第一条用户消息添加时间戳
+                                if first_user_msg_obj:
+                                    first_user_msg_obj['timestamp'] = conversation_time
+                                    save_conversation(conversation_id, messages)
+                                    print(f"为旧对话 {conversation_id} 添加了时间戳: {conversation_time}")
+                            except Exception as e:
+                                print(f"保存时间戳失败: {e}")
                         
                         # 使用新的获取总结函数
                         title = get_conversation_summary(conversation_id, first_user_message)
@@ -920,6 +932,27 @@ def save_conversation_endpoint():
         save_conversation(conversation_id, messages)
         
         return jsonify({'success': True, 'message': '对话保存成功'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/conversation/<conversation_id>', methods=['DELETE'])
+def delete_conversation(conversation_id):
+    try:
+        conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
+        
+        if not os.path.exists(conversation_file):
+            return jsonify({'error': '对话不存在'}), 404
+        
+        # 删除文件
+        os.remove(conversation_file)
+        
+        # 从缓存中移除
+        if conversation_id in conversation_summary_cache:
+            del conversation_summary_cache[conversation_id]
+        
+        return jsonify({'success': True, 'message': '对话删除成功'})
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

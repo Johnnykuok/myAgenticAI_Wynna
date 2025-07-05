@@ -42,6 +42,16 @@ class ChatApp {
         this.chatInput.addEventListener('input', () => {
             this.updateSendButtonState();
         });
+
+        // 点击外部关闭所有菜单
+        document.addEventListener('click', (e) => {
+            // 如果点击的不是菜单相关元素，关闭所有菜单
+            if (!e.target.closest('.conversation-menu')) {
+                document.querySelectorAll('.conversation-dropdown.show').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
     }
 
     // 更新发送按钮状态
@@ -287,11 +297,32 @@ class ChatApp {
             }
             
             convDiv.innerHTML = `
-                <div class="conversation-title">${titleHtml}</div>
-                <div class="conversation-time">${this.formatConversationTime(conv.conversation_time)}</div>
+                <div class="conversation-content">
+                    <div class="conversation-title">${titleHtml}</div>
+                    <div class="conversation-time">${this.formatConversationTime(conv.conversation_time)}</div>
+                </div>
+                <div class="conversation-menu">
+                    <button class="conversation-menu-btn" data-conversation-id="${conv.id}">⋯</button>
+                    <div class="conversation-dropdown" id="menu-${conv.id}">
+                        <button class="conversation-dropdown-item delete delete-btn" data-conversation-id="${conv.id}">
+                            <span class="icon">🗑️</span>删除
+                        </button>
+                    </div>
+                </div>
             `;
             
-            convDiv.addEventListener('click', () => this.loadConversation(conv.id));
+            // 为对话内容区域添加点击事件
+            const contentArea = convDiv.querySelector('.conversation-content');
+            contentArea.addEventListener('click', () => this.loadConversation(conv.id));
+            
+            // 为菜单按钮添加事件监听器
+            const menuBtn = convDiv.querySelector('.conversation-menu-btn');
+            menuBtn.addEventListener('click', (e) => this.toggleConversationMenu(e, conv.id));
+            
+            // 为删除按钮添加事件监听器
+            const deleteBtn = convDiv.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', (e) => this.deleteConversation(e, conv.id));
+            
             this.conversationHistory.appendChild(convDiv);
         });
     }
@@ -641,6 +672,70 @@ class ChatApp {
         const buttons = document.querySelector('.task-confirmation-buttons');
         if (buttons) {
             buttons.remove();
+        }
+    }
+
+    // 切换对话菜单显示状态
+    toggleConversationMenu(event, conversationId) {
+        event.stopPropagation();
+        
+        // 关闭其他所有菜单
+        document.querySelectorAll('.conversation-dropdown.show').forEach(menu => {
+            if (menu.id !== `menu-${conversationId}`) {
+                menu.classList.remove('show');
+            }
+        });
+        
+        // 切换当前菜单
+        const menu = document.getElementById(`menu-${conversationId}`);
+        if (menu) {
+            menu.classList.toggle('show');
+        }
+    }
+
+
+    // 删除对话
+    async deleteConversation(event, conversationId) {
+        event.stopPropagation();
+        
+        // 关闭菜单
+        const menu = document.getElementById(`menu-${conversationId}`);
+        if (menu) {
+            menu.classList.remove('show');
+        }
+        
+        if (!confirm('确定要删除这个对话吗？删除后无法恢复。')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/conversation/${conversationId}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // 如果删除的是当前对话，清空聊天区域
+            if (conversationId === this.currentConversationId) {
+                this.currentConversationId = null;
+                this.clearMessages();
+                this.showWelcomeMessage();
+                this.updateModeStatus(null);
+            }
+            
+            // 刷新对话列表
+            this.loadConversations();
+            
+        } catch (error) {
+            console.error('删除失败:', error);
+            alert('删除失败，请稍后再试');
         }
     }
 }
