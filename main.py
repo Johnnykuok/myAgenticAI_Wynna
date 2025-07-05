@@ -509,18 +509,27 @@ def get_all_conversations():
                         # 查找第一个用户消息
                         first_user_message = next((msg['content'] for msg in messages if msg['role'] == 'user'), "新对话")
                         
+                        # 查找第一个用户消息的时间戳
+                        first_user_msg_obj = next((msg for msg in messages if msg['role'] == 'user'), None)
+                        if first_user_msg_obj and 'timestamp' in first_user_msg_obj:
+                            # 使用消息的时间戳
+                            conversation_time = first_user_msg_obj['timestamp']
+                        else:
+                            # 回退到文件修改时间
+                            conversation_time = datetime.fromtimestamp(os.path.getmtime(os.path.join(CONVERSATIONS_DIR, filename))).isoformat()
+                        
                         # 使用新的获取总结函数
                         title = get_conversation_summary(conversation_id, first_user_message)
                         
                         conversations.append({
                             'id': conversation_id,
                             'title': title,
-                            'last_message_time': os.path.getmtime(os.path.join(CONVERSATIONS_DIR, filename))
+                            'conversation_time': conversation_time
                         })
                 except Exception as e:
                     print(f"处理对话文件 {conversation_id} 时出错: {e}")
                     continue
-    return sorted(conversations, key=lambda x: x['last_message_time'], reverse=True)
+    return sorted(conversations, key=lambda x: x['conversation_time'], reverse=True)
 
 def limit_conversation_history(messages, max_rounds=3):
     """限制对话历史为最多指定轮数"""
@@ -574,7 +583,13 @@ def run_agent(user_input, conversation_id=None, mode=None):
         conversation_id = str(uuid.uuid4())
         messages = [{"role": "system", "content":"你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"}]
     
-    messages.append({"role": "user", "content": user_input})
+    # 添加带时间戳的用户消息
+    current_time = datetime.now()
+    messages.append({
+        "role": "user", 
+        "content": user_input,
+        "timestamp": current_time.isoformat()
+    })
     
     # 检查是否是新对话的第一条用户消息
     user_messages = [msg for msg in messages if msg['role'] == 'user']
@@ -631,10 +646,12 @@ def run_agent(user_input, conversation_id=None, mode=None):
             return {"response": f"抱歉，AI服务暂时不可用：{str(e)}", "conversation_id": conversation_id}
         
         message = response.choices[0].message
-        # 将OpenAI message对象转换为字典格式
+        # 将OpenAI message对象转换为字典格式，添加时间戳
+        current_time = datetime.now()
         message_dict = {
             "role": message.role,
-            "content": message.content
+            "content": message.content,
+            "timestamp": current_time.isoformat()
         }
         
         # 如果有工具调用，添加工具调用信息
@@ -665,30 +682,36 @@ def run_agent(user_input, conversation_id=None, mode=None):
                         weather_info = get_current_weather(args["location"])
                         
                         # 添加工具响应到消息历史
+                        current_time = datetime.now()
                         messages.append({
                             "role": "tool",
                             "tool_call_id": tool_call.id,
                             "name": function_name,
-                            "content": weather_info
+                            "content": weather_info,
+                            "timestamp": current_time.isoformat()
                         })
                     elif function_name == "get_current_time":
                         # 调用时间查询
                         time_info = get_current_time()
                         
                         # 添加工具响应到消息历史
+                        current_time = datetime.now()
                         messages.append({
                             "role": "tool",
                             "tool_call_id": tool_call.id,
                             "name": function_name,
-                            "content": time_info
+                            "content": time_info,
+                            "timestamp": current_time.isoformat()
                         })
                 except Exception as e:
                     # 工具调用失败时添加错误信息
+                    current_time = datetime.now()
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
                         "name": function_name,
-                        "content": json.dumps({"status": "error", "message": f"工具调用失败: {str(e)}"})
+                        "content": json.dumps({"status": "error", "message": f"工具调用失败: {str(e)}"}),
+                        "timestamp": current_time.isoformat()
                     })
         else:
             # 没有工具调用时返回最终回复
@@ -755,10 +778,11 @@ def handle_task_planning(user_input, conversation_id=None):
     decomposed_tasks = decompose_task(user_input)
     
     # 保存初始对话
+    current_time = datetime.now()
     messages = [
         {"role": "system", "content": "你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"},
-        {"role": "user", "content": user_input},
-        {"role": "assistant", "content": f"我来帮你分析这个任务～这是一个比较复杂的问题，我把它拆解成了以下几个步骤：\n\n{decomposed_tasks}\n\n请确认这些步骤是否合适，或者你可以编辑后提交。确认后我会逐步为你完成每个任务哦！"}
+        {"role": "user", "content": user_input, "timestamp": current_time.isoformat()},
+        {"role": "assistant", "content": f"我来帮你分析这个任务～这是一个比较复杂的问题，我把它拆解成了以下几个步骤：\n\n{decomposed_tasks}\n\n请确认这些步骤是否合适，或者你可以编辑后提交。确认后我会逐步为你完成每个任务哦！", "timestamp": current_time.isoformat()}
     ]
     
     save_conversation(conversation_id, messages, mode="taskPlanning")
@@ -795,8 +819,17 @@ def confirm_tasks():
         
         # 更新对话记录
         messages = load_conversation(conversation_id)
-        messages.append({"role": "user", "content": f"确认任务分解，开始执行：{confirmed_tasks}"})
-        messages.append({"role": "assistant", "content": final_summary})
+        current_time = datetime.now()
+        messages.append({
+            "role": "user", 
+            "content": f"确认任务分解，开始执行：{confirmed_tasks}",
+            "timestamp": current_time.isoformat()
+        })
+        messages.append({
+            "role": "assistant", 
+            "content": final_summary,
+            "timestamp": current_time.isoformat()
+        })
         save_conversation(conversation_id, messages)
         
         return jsonify({

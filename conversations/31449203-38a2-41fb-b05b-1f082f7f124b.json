@@ -6,13 +6,13 @@
     },
     {
       "role": "user",
-      "content": "现在几点了？"
+      "content": "测试对话历史时间显示"
     },
     {
       "role": "assistant",
-      "content": "现在是2025年07月03日11时46分07秒哦~"
+      "content": "当前时间是2025年07月05日 14时27分04秒，是星期六呢~"
     }
   ],
-  "summary": "询问当前时间",
+  "summary": "测试对话历史时间显示",
   "mode": "chatBot"
 }

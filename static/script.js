@@ -62,9 +62,10 @@ class ChatApp {
         const message = this.chatInput.value.trim();
         if (!message || this.isLoading) return;
 
-        // 清空输入框并立即显示用户消息
+        // 清空输入框并立即显示用户消息（带当前时间戳）
         this.chatInput.value = '';
-        this.addMessage(message, 'user');
+        const currentTime = new Date().toISOString();
+        this.addMessage(message, 'user', false, currentTime);
         this.updateSendButtonState();
 
         // 添加跳动点提示AI正在思考
@@ -111,7 +112,8 @@ class ChatApp {
             if (data.mode === 'taskPlanning' && data.status === 'waiting_confirmation') {
                 this.handleTaskPlanningResponse(data);
             } else {
-                this.addMessage(data.response, 'bot');
+                const currentTime = new Date().toISOString();
+                this.addMessage(data.response, 'bot', false, currentTime);
             }
             
             // 再次刷新对话列表（确保对话ID正确并显示最新状态）
@@ -119,7 +121,8 @@ class ChatApp {
 
         } catch (error) {
             console.error('发送消息失败:', error);
-            this.addMessage('抱歉，发送消息时出现错误，请稍后再试。', 'bot', true);
+            const currentTime = new Date().toISOString();
+            this.addMessage('抱歉，发送消息时出现错误，请稍后再试。', 'bot', true, currentTime);
         } finally {
             // 移除跳动点并恢复状态
             this.removeTypingIndicator();
@@ -129,7 +132,7 @@ class ChatApp {
     }
 
     // 添加消息到聊天界面
-    addMessage(content, type, isError = false) {
+    addMessage(content, type, isError = false, timestamp = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}-message`;
         
@@ -146,6 +149,15 @@ class ChatApp {
         messageContent.innerHTML = this.formatMessage(content);
         
         messageDiv.appendChild(messageContent);
+        
+        // 如果有时间戳，添加时间戳显示
+        if (timestamp) {
+            const timestampDiv = document.createElement('div');
+            timestampDiv.className = 'message-timestamp';
+            timestampDiv.textContent = this.formatMessageTimestamp(timestamp);
+            messageDiv.appendChild(timestampDiv);
+        }
+        
         this.chatMessages.appendChild(messageDiv);
         
         // 滚动到底部
@@ -276,7 +288,7 @@ class ChatApp {
             
             convDiv.innerHTML = `
                 <div class="conversation-title">${titleHtml}</div>
-                <div class="conversation-time">${this.formatTime(conv.last_message_time)}</div>
+                <div class="conversation-time">${this.formatConversationTime(conv.conversation_time)}</div>
             `;
             
             convDiv.addEventListener('click', () => this.loadConversation(conv.id));
@@ -335,9 +347,9 @@ class ChatApp {
             const messages = data.messages || data; // 兼容新旧格式
             messages.forEach(message => {
                 if (message.role === 'user') {
-                    this.addMessage(message.content, 'user');
+                    this.addMessage(message.content, 'user', false, message.timestamp);
                 } else if (message.role === 'assistant') {
-                    this.addMessage(message.content, 'bot');
+                    this.addMessage(message.content, 'bot', false, message.timestamp);
                 }
             });
 
@@ -484,6 +496,36 @@ class ChatApp {
         }
     }
 
+    // 格式化消息时间戳显示
+    formatMessageTimestamp(timestamp) {
+        if (!timestamp) return '';
+        
+        const date = new Date(timestamp);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+        
+        return `${year}年${month}月${day}日${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // 格式化对话历史时间显示
+    formatConversationTime(timestamp) {
+        if (!timestamp) return '';
+        
+        const date = new Date(timestamp);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+        
+        return `${year}年${month}月${day}日${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
     // 更新模式状态显示
     updateModeStatus(mode) {
         this.currentMode = mode;
@@ -507,7 +549,8 @@ class ChatApp {
     // 处理任务规划模式的响应
     handleTaskPlanningResponse(data) {
         // 显示任务分解结果
-        this.addMessage(data.response, 'bot');
+        const currentTime = new Date().toISOString();
+        this.addMessage(data.response, 'bot', false, currentTime);
         
         // 保存任务数据以备后续使用
         this.pendingTaskData = {
@@ -573,13 +616,15 @@ class ChatApp {
                 throw new Error(data.error);
             }
             
-            this.addMessage(data.response, 'bot');
+            const currentTime = new Date().toISOString();
+            this.addMessage(data.response, 'bot', false, currentTime);
             this.pendingTaskData = null;
             
         } catch (error) {
             console.error('确认任务失败:', error);
             this.removeTypingIndicator();
-            this.addMessage('确认任务时出现错误，请稍后再试。', 'bot', true);
+            const currentTime = new Date().toISOString();
+            this.addMessage('确认任务时出现错误，请稍后再试。', 'bot', true, currentTime);
         }
     }
 
@@ -587,7 +632,8 @@ class ChatApp {
     cancelTasks() {
         this.removeTaskButtons();
         this.pendingTaskData = null;
-        this.addMessage('已取消任务规划。', 'bot');
+        const currentTime = new Date().toISOString();
+        this.addMessage('已取消任务规划。', 'bot', false, currentTime);
     }
 
     // 移除任务按钮
