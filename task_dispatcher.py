@@ -158,8 +158,8 @@ class TaskDispatcher:
     
     def __init__(self):
         self.agents = {
-            "photo": MCPAgentClient("photo_generator_server.py"),
-            "text": MCPAgentClient("text_generator_server.py")
+            "photo": MCPAgentClient("MCP_server/photo_generator_server.py"),
+            "text": MCPAgentClient("MCP_server/text_generator_server.py")
         }
         self.client = get_openai_client()
         self.task_cache = {}  # 用于存储子Agent的输出
