@@ -175,12 +175,48 @@ class ChatApp {
         this.scrollToBottom();
     }
 
-    // 格式化消息内容
+    // 格式化消息内容 - 支持完整的markdown渲染
     formatMessage(content) {
-        return content
-            .replace(/\n/g, '<br>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+        let formatted = content;
+        
+        // 处理图片 ![alt](src)
+        formatted = formatted.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+            return `<div class="image-container">
+                        <img src="${src}" alt="${alt}" class="message-image" loading="lazy" onerror="this.style.display='none';">
+                        ${alt ? `<div class="image-caption">${alt}</div>` : ''}
+                    </div>`;
+        });
+        
+        // 处理链接 [text](url)
+        formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        
+        // 处理标题
+        formatted = formatted.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+        formatted = formatted.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+        formatted = formatted.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+        
+        // 处理粗体和斜体
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // 处理代码块
+        formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // 处理列表项
+        formatted = formatted.replace(/^\* (.*$)/gm, '<li>$1</li>');
+        formatted = formatted.replace(/^- (.*$)/gm, '<li>$1</li>');
+        formatted = formatted.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+        
+        // 包装连续的列表项
+        formatted = formatted.replace(/(<li>.*<\/li>)/gs, (match) => {
+            return `<ul>${match}</ul>`;
+        });
+        
+        // 处理换行
+        formatted = formatted.replace(/\n/g, '<br>');
+        
+        return formatted;
     }
 
     // 滚动到聊天底部

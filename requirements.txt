@@ -1,0 +1,7 @@
+flask
+flask-cors
+openai
+python-dotenv
+requests
+mcp
+httpx

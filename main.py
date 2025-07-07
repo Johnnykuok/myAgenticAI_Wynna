@@ -1,13 +1,15 @@
 import os
 import json
 import uuid
+import asyncio
+from functools import wraps
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 
 # 导入自定义模块
 from config import FLASK_DEBUG, FLASK_HOST, FLASK_PORT, CONVERSATIONS_DIR, ensure_conversations_dir
 from agent import run_agent
-from task_planning import judge_question_type, handle_task_planning, confirm_and_execute_tasks
+from task_planning import judge_question_type, handle_task_planning, confirm_and_execute_tasks_new
 from conversation import (
     get_all_conversations, load_conversation, save_conversation, 
     delete_conversation_from_cache
@@ -20,6 +22,13 @@ CORS(app)
 # 确保对话目录存在
 ensure_conversations_dir()
 
+def async_route(f):
+    """装饰器：让Flask支持async路由"""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+    return wrapper
+
 # Flask路由定义
 @app.route('/')
 def home():
@@ -28,6 +37,10 @@ def home():
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
+
+@app.route('/static/generated_images/<path:filename>')
+def generated_images(filename):
+    return send_from_directory('static/generated_images', filename)
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -57,7 +70,8 @@ def chat():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/confirm-tasks', methods=['POST'])
-def confirm_tasks():
+@async_route
+async def confirm_tasks():
     """确认任务分解结果"""
     data = request.json
     conversation_id = data.get('conversation_id')
@@ -68,10 +82,13 @@ def confirm_tasks():
         return jsonify({'error': '参数不完整'}), 400
     
     try:
-        result = confirm_and_execute_tasks(conversation_id, confirmed_tasks, original_question)
+        result = await confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, original_question)
         return jsonify(result)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"确认任务执行错误: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'确认任务时出现错误: {str(e)}'}), 500
 
 @app.route('/api/conversations', methods=['GET'])
 def get_conversations():

@@ -3,6 +3,8 @@ import uuid
 from datetime import datetime
 from config import get_openai_client, DOUBAO_MODEL, SYSTEM_PROMPT
 from conversation import save_conversation, load_conversation
+from simple_task_dispatcher import get_simple_task_dispatcher, get_simple_task_results
+from task_summarizer import TaskSummarizer
 
 def judge_question_type(user_message):
     """判断用户问题类型：chatbot模式 vs 任务规划模式"""
@@ -237,8 +239,63 @@ def handle_task_planning(user_input, conversation_id=None):
         "status": "waiting_confirmation"
     }
 
+async def confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, original_question):
+    """使用新的任务分配器确认并执行任务"""
+    try:
+        # 重构任务为markdown格式
+        todo_content = "# TODO\n\n"
+        for i, task in enumerate(confirmed_tasks, 1):
+            todo_content += f"{i}. {task}\n"
+        
+        print(f"📋 开始执行 {len(confirmed_tasks)} 个任务")
+        
+        # 获取任务分配器并执行任务
+        dispatcher = await get_simple_task_dispatcher()
+        cache_key = await dispatcher.dispatch_and_execute_tasks(original_question, todo_content)
+        
+        print(f"✅ 所有任务执行完成，缓存键: {cache_key}")
+        
+        # 获取执行结果
+        cache_data = get_simple_task_results(cache_key)
+        if not cache_data:
+            raise Exception("无法获取任务执行结果")
+        
+        # 使用任务汇总器生成最终响应
+        summarizer = TaskSummarizer()
+        final_response = summarizer.generate_final_response(cache_data)
+        
+        # 更新对话记录
+        messages = load_conversation(conversation_id)
+        current_time = datetime.now()
+        messages.append({
+            "role": "user", 
+            "content": f"确认任务分解，开始执行：{confirmed_tasks}",
+            "timestamp": current_time.isoformat()
+        })
+        messages.append({
+            "role": "assistant", 
+            "content": final_response["response"],
+            "timestamp": current_time.isoformat()
+        })
+        save_conversation(conversation_id, messages)
+        
+        # 添加对话ID到响应
+        final_response["conversation_id"] = conversation_id
+        
+        return final_response
+        
+    except Exception as e:
+        print(f"执行任务失败: {e}")
+        return {
+            "response": f"执行任务时出现错误：{str(e)}",
+            "conversation_id": conversation_id,
+            "mode": "taskPlanning",
+            "status": "error"
+        }
+
+# 保留原有函数作为备份
 def confirm_and_execute_tasks(conversation_id, confirmed_tasks, original_question):
-    """确认并执行任务"""
+    """确认并执行任务（旧版本）"""
     try:
         # 逐个执行子任务
         solutions = []
