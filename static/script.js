@@ -81,6 +81,7 @@ class ChatApp {
         // 添加跳动点提示AI正在思考
         this.addTypingIndicator();
         
+        
         // 设置加载状态但不显示全局loading
         this.isLoading = true;
 
@@ -221,6 +222,7 @@ class ChatApp {
             
             // 重置模式状态为默认状态
             this.updateModeStatus(null);
+            
             
             // 重新加载对话列表
             this.loadConversations();
@@ -577,6 +579,7 @@ class ChatApp {
         }
     }
 
+
     // 处理任务规划模式的响应
     handleTaskPlanningResponse(data) {
         // 显示任务分解结果
@@ -626,6 +629,7 @@ class ChatApp {
         try {
             this.removeTaskButtons();
             this.addTypingIndicator();
+            
             
             const response = await fetch('/api/confirm-tasks', {
                 method: 'POST',
