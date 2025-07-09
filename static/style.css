@@ -128,16 +128,6 @@ code {
     color: #6c757d;
 }
 
-/* 列表样式 */
-.message-content ul {
-    margin: 8px 0;
-    padding-left: 20px;
-}
-
-.message-content li {
-    margin: 4px 0;
-    line-height: 1.5;
-}
 
 /* 链接样式 */
 .message-content a {
@@ -150,6 +140,105 @@ code {
 .message-content a:hover {
     color: #0056b3;
     border-bottom-color: #0056b3;
+}
+
+/* 优化TODO项行间距 */
+.message-content ul {
+    line-height: 1.1;
+    margin: 2px 0;
+    padding-left: 20px;
+}
+
+.message-content li {
+    margin: 0;  /* 完全去掉行间距 */
+    line-height: 1.1;  /* 进一步减小行高 */
+    padding: 0;   /* 去掉内边距 */
+}
+
+/* 进一步优化段落间距 */
+.message-content p {
+    margin: 2px 0;
+    line-height: 1.2;
+}
+
+/* 任务编辑器样式 */
+.task-editor {
+    width: 100%;
+    min-height: 80px;
+    max-height: 300px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: none;
+    overflow-y: auto;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: #fafbfc;
+}
+
+.task-editor:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    background: #fff;
+}
+
+/* 任务按钮容器 */
+.task-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    margin-top: 8px;
+}
+
+/* 通用按钮样式 */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    min-width: 100px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    transform: translateY(-1px);
+}
+
+/* 任务确认按钮容器 */
+.task-confirmation-buttons {
+    margin: 15px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
 }
 
 /* 悬停效果 */

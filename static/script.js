@@ -639,9 +639,11 @@ class ChatApp {
         buttonContainer.className = 'task-confirmation-buttons';
         buttonContainer.innerHTML = `
             <div style="margin: 10px 0;">
-                <textarea id="task-editor" style="width: 100%; height: 100px; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="你可以编辑任务步骤..."></textarea>
-                <button onclick="chatApp.confirmTasks()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">确认并执行</button>
-                <button onclick="chatApp.cancelTasks()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">取消</button>
+                <textarea id="task-editor" class="task-editor" placeholder="你可以编辑任务步骤..."></textarea>
+                <div class="task-buttons">
+                    <button onclick="chatApp.confirmTasks()" class="btn btn-primary">确认并执行</button>
+                    <button onclick="chatApp.cancelTasks()" class="btn btn-secondary">取消</button>
+                </div>
             </div>
         `;
         
@@ -651,8 +653,33 @@ class ChatApp {
             taskEditor.value = this.pendingTaskData.decomposed_tasks;
         }
         
+        // 添加到DOM后再调整高度
         this.chatMessages.appendChild(buttonContainer);
+        
+        // 延迟调整高度，确保元素已渲染
+        setTimeout(() => {
+            this.adjustTextareaHeight(taskEditor);
+        }, 10);
+        
+        // 添加输入事件监听器，实时调整高度
+        taskEditor.addEventListener('input', () => {
+            this.adjustTextareaHeight(taskEditor);
+        });
+        
         this.scrollToBottom();
+    }
+
+    // 自动调整textarea高度
+    adjustTextareaHeight(textarea) {
+        // 重置高度
+        textarea.style.height = 'auto';
+        // 计算内容高度
+        const scrollHeight = textarea.scrollHeight;
+        // 设置最小高度和最大高度
+        const minHeight = 80;
+        const maxHeight = 300;
+        const newHeight = Math.max(minHeight, Math.min(maxHeight, scrollHeight));
+        textarea.style.height = newHeight + 'px';
     }
 
     // 确认任务
