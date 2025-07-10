@@ -7,6 +7,7 @@ from tools import get_current_weather, get_current_time
 import base64
 import os
 from openai import OpenAI
+import requests
 
 class SimpleTaskDispatcher:
     """简化版任务分配器，不依赖MCP协议"""
@@ -20,6 +21,10 @@ class SimpleTaskDispatcher:
             base_url=os.getenv("DOUBAO_BASE_URL"),
             api_key=os.getenv("DOUBAO_API_KEY")
         )
+        
+        # 博查AI搜索API配置
+        self.bocha_api_key = "sk-5635f459fa3c4e31b4a835678597649e"
+        self.bocha_api_url = "https://api.bochaai.com/v1/ai-search"
     
     def classify_todo_item(self, todo_item: str) -> str:
         """使用豆包大模型分类TODO项"""
@@ -33,8 +38,9 @@ class SimpleTaskDispatcher:
 
 1. "photo" - 图片生成Agent：任务涉及生成、创建、绘制图片、图像、插图等视觉内容
 2. "text" - 文字生成Agent：任务涉及文字处理、信息查询、天气查询、时间查询、文本分析等
+3. "web_search" - 网页搜索Agent：任务涉及搜索网络信息、查找最新资讯、获取网页内容、搜索相关信息等
 
-请只返回 "photo" 或 "text"，不要返回其他内容。"""
+请只返回 "photo"、"text" 或 "web_search"，不要返回其他内容。"""
                     },
                     {
                         "role": "user",
@@ -46,7 +52,7 @@ class SimpleTaskDispatcher:
             )
             
             result = response.choices[0].message.content.strip().lower()
-            if result in ["photo", "text"]:
+            if result in ["photo", "text", "web_search"]:
                 return result
             else:
                 return "text"
@@ -334,6 +340,151 @@ class SimpleTaskDispatcher:
                 "tool_results": []
             }
     
+    async def execute_web_search_task(self, original_question: str, todo_content: str, task: str) -> Dict[str, Any]:
+        """执行网页搜索任务"""
+        try:
+            # 首先让AI提取搜索关键词
+            search_response = self.client.chat.completions.create(
+                model=DOUBAO_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": f"""你是一个搜索专家。
+                        
+用户的原始问题：{original_question}
+
+完整的任务分解：
+{todo_content}
+
+你需要完成的具体任务：{task}
+
+请分析这个任务，提取出最佳的搜索关键词，并以JSON格式返回：
+{{"query": "搜索关键词", "description": "搜索目的的简短描述"}}
+
+搜索关键词要具体、准确，能够找到相关信息。"""
+                    },
+                    {
+                        "role": "user",
+                        "content": f"为任务提取搜索关键词：{task}"
+                    }
+                ],
+                max_tokens=200,
+                temperature=0.3
+            )
+            
+            try:
+                search_info = json.loads(search_response.choices[0].message.content)
+                query = search_info.get("query", task)
+                description = search_info.get("description", "网页搜索")
+            except:
+                query = task
+                description = "网页搜索"
+            
+            print(f"🔍 搜索关键词: {query}")
+            print(f"📝 搜索目的: {description}")
+            
+            # 调用博查AI搜索API
+            data = {
+                "query": query,
+                "freshness": "noLimit",
+                "answer": False,
+                "stream": False
+            }
+            
+            response = requests.post(
+                self.bocha_api_url,
+                headers={"Authorization": f"Bearer {self.bocha_api_key}"},
+                json=data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # 解析搜索结果
+                parsed_results = []
+                
+                for message in result.get("messages", []):
+                    if message.get("content_type") == "webpage":
+                        content = json.loads(message.get("content", "{}"))
+                        web_results = content.get("value", [])
+                        
+                        for item in web_results[:5]:  # 限制显示前5个结果
+                            search_result = {
+                                "id": item.get("id", ""),
+                                "title": item.get("name", ""),
+                                "url": item.get("url", ""),
+                                "snippet": item.get("snippet", ""),
+                                "summary": item.get("summary", ""),
+                                "site_name": item.get("siteName", ""),
+                                "date_published": item.get("datePublished")
+                            }
+                            parsed_results.append(search_result)
+                
+                # 生成用户友好的搜索结果摘要
+                if parsed_results:
+                    results_text = "\n".join([
+                        f"• {result['title']}\n  {result['snippet']}\n  来源：{result['site_name']} ({result['url']})\n" 
+                        for result in parsed_results[:3]
+                    ])
+                    
+                    summary_response = self.client.chat.completions.create(
+                        model=DOUBAO_MODEL,
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": f"基于搜索结果，为用户任务生成简洁的总结。\n任务：{task}\n搜索结果：\n{results_text}"
+                            },
+                            {
+                                "role": "user",
+                                "content": "请生成友好完整的搜索结果总结"
+                            }
+                        ],
+                        max_tokens=400,
+                        temperature=0.3
+                    )
+                    content = summary_response.choices[0].message.content
+                else:
+                    content = f"搜索完成，但未找到相关结果。搜索关键词：{query}"
+                
+                return {
+                    "todo": task,
+                    "agent_type": "web_search",
+                    "timestamp": datetime.now().isoformat(),
+                    "status": "success",
+                    "content": content,
+                    "tool_results": [{
+                        "tool_name": "web_search",
+                        "args": {"query": query, "freshness": "noLimit", "max_results": 5},
+                        "result": json.dumps({
+                            "status": "success",
+                            "query": query,
+                            "total_results": len(parsed_results),
+                            "results": parsed_results
+                        }, ensure_ascii=False)
+                    }]
+                }
+            else:
+                return {
+                    "todo": task,
+                    "agent_type": "web_search",
+                    "timestamp": datetime.now().isoformat(),
+                    "status": "error",
+                    "content": f"搜索失败：API返回状态码 {response.status_code}",
+                    "tool_results": []
+                }
+                
+        except Exception as e:
+            print(f"网页搜索任务失败: {e}")
+            return {
+                "todo": task,
+                "agent_type": "web_search",
+                "timestamp": datetime.now().isoformat(),
+                "status": "error",
+                "content": f"网页搜索失败: {str(e)}",
+                "tool_results": []
+            }
+    
     async def dispatch_and_execute_tasks(self, original_question: str, todo_content: str) -> str:
         """分配并执行所有任务"""
         # 解析TODO项
@@ -359,6 +510,8 @@ class SimpleTaskDispatcher:
         async def execute_task(agent_type: str, task: str):
             if agent_type == "photo":
                 return await self.execute_photo_task(original_question, todo_content, task)
+            elif agent_type == "web_search":
+                return await self.execute_web_search_task(original_question, todo_content, task)
             else:
                 return await self.execute_text_task(original_question, todo_content, task)
         

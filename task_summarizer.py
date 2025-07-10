@@ -52,6 +52,12 @@ class TaskSummarizer:
                             "tool": tool_name,
                             "data": result_json
                         })
+                    elif tool_name == "web_search" and result_json.get("status") == "success":
+                        # 网页搜索结果
+                        text_results.append({
+                            "tool": tool_name,
+                            "data": result_json
+                        })
                 except:
                     # 如果无法解析JSON，直接添加文本内容
                     text_results.append({
@@ -83,6 +89,18 @@ class TaskSummarizer:
                     formatted_content += f"**星期**：{time_data.get('weekday', '')}\n"
                     formatted_content += f"**中文日期**：{time_data.get('date', '')}\n"
                     formatted_content += f"**中文时间**：{time_data.get('time', '')}\n\n"
+                elif text_result.get("tool") == "web_search" and "data" in text_result:
+                    search_data = text_result["data"]
+                    formatted_content += f"### 搜索结果\n"
+                    formatted_content += f"**搜索关键词**：{search_data.get('query', '')}\n"
+                    formatted_content += f"**找到结果**：{search_data.get('total_results', 0)} 个\n\n"
+                    
+                    # 显示搜索结果
+                    results = search_data.get('results', [])
+                    for idx, result in enumerate(results[:3], 1):  # 显示前3个结果
+                        formatted_content += f"**{idx}. {result.get('title', '')}**\n"
+                        formatted_content += f"{result.get('snippet', '')}\n"
+                        formatted_content += f"来源：{result.get('site_name', '')} - [{result.get('url', '')}]({result.get('url', '')})\n\n"
                 else:
                     formatted_content += f"### 工具结果\n"
                     formatted_content += f"{text_result.get('content', '')}\n\n"
@@ -163,6 +181,12 @@ class TaskSummarizer:
             for r in results
         )
         
+        # 检查是否有网页搜索
+        has_web_search = any(
+            any(tr.get("tool_name") == "web_search" for tr in r.get("tool_results", []))
+            for r in results
+        )
+        
         return {
             "response": final_content,
             "mode": "taskPlanning",
@@ -172,6 +196,7 @@ class TaskSummarizer:
                 "successful_tasks": successful_tasks,
                 "failed_tasks": failed_tasks,
                 "has_images": has_images,
+                "has_web_search": has_web_search,
                 "execution_time": cache_data.get("timestamp", "")
             },
             "detailed_results": results
