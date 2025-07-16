@@ -179,7 +179,7 @@ class ChatApp {
     formatMessage(content) {
         let formatted = content;
         
-        // 处理图片 ![alt](src)
+        // 首先处理图片 ![alt](src)
         formatted = formatted.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
             return `<div class="image-container">
                         <img src="${src}" alt="${alt}" class="message-image" loading="lazy" onerror="this.style.display='none';">
@@ -187,10 +187,12 @@ class ChatApp {
                     </div>`;
         });
         
-        // 处理链接 [text](url)
+        // 处理链接 [text](url) - 在处理标题之前，避免链接被误处理
         formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         
-        // 处理标题
+        // 处理各级标题 - 按层级从高到低处理，避免冲突
+        formatted = formatted.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+        formatted = formatted.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
         formatted = formatted.replace(/^### (.*$)/gm, '<h3>$1</h3>');
         formatted = formatted.replace(/^## (.*$)/gm, '<h2>$1</h2>');
         formatted = formatted.replace(/^# (.*$)/gm, '<h1>$1</h1>');
@@ -208,12 +210,14 @@ class ChatApp {
         formatted = formatted.replace(/^- (.*$)/gm, '<li>$1</li>');
         formatted = formatted.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
         
-        // 包装连续的列表项
-        formatted = formatted.replace(/(<li>.*<\/li>)/gs, (match) => {
-            return `<ul>${match}</ul>`;
+        // 包装连续的列表项为ul标签
+        formatted = formatted.replace(/(<li>.*?<\/li>(?:\s*<br>\s*<li>.*?<\/li>)*)/gs, (match) => {
+            // 移除li标签之间的br标签
+            const cleanMatch = match.replace(/<br>\s*(?=<li>)/g, '');
+            return `<ul>${cleanMatch}</ul>`;
         });
         
-        // 处理换行
+        // 处理换行 - 在所有其他处理完成后
         formatted = formatted.replace(/\n/g, '<br>');
         
         return formatted;

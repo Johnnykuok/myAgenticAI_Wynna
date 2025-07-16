@@ -20,7 +20,7 @@ class TaskSummarizer:
             status = result.get("status", "")
             
             # 添加任务标题
-            formatted_content += f"\n## 任务 {i}：{todo}\n\n"
+            formatted_content += f"\n**{i}. {todo}**\n\n"
             
             if status == "error":
                 formatted_content += f"❌ {content}\n\n"
@@ -67,7 +67,7 @@ class TaskSummarizer:
             
             # 添加图片结果
             for img_result in image_results:
-                formatted_content += f"### {img_result['description']}\n"
+                formatted_content += f"**{img_result['description']}**\n"
                 # 使用用户友好的描述作为图片alt文本
                 formatted_content += f"![{img_result['description']}]({img_result['path']})\n\n"
             
@@ -75,39 +75,39 @@ class TaskSummarizer:
             for text_result in text_results:
                 if text_result.get("tool") == "get_weather" and "data" in text_result:
                     weather_data = text_result["data"]
-                    formatted_content += f"### 天气信息\n"
-                    formatted_content += f"**地点**：{weather_data.get('location', '')}\n"
-                    formatted_content += f"**天气**：{weather_data.get('weather', '')}\n"
-                    formatted_content += f"**温度**：{weather_data.get('temperature', '')}°C\n"
-                    formatted_content += f"**风向风力**：{weather_data.get('wind', '')}\n"
-                    formatted_content += f"**湿度**：{weather_data.get('humidity', '')}\n"
-                    formatted_content += f"**更新时间**：{weather_data.get('report_time', '')}\n\n"
+                    formatted_content += f"**天气信息**\n"
+                    formatted_content += f"地点：{weather_data.get('location', '')}\n"
+                    formatted_content += f"天气：{weather_data.get('weather', '')}\n"
+                    formatted_content += f"温度：{weather_data.get('temperature', '')}°C\n"
+                    formatted_content += f"风向风力：{weather_data.get('wind', '')}\n"
+                    formatted_content += f"湿度：{weather_data.get('humidity', '')}\n"
+                    formatted_content += f"更新时间：{weather_data.get('report_time', '')}\n\n"
                 elif text_result.get("tool") == "get_current_time" and "data" in text_result:
                     time_data = text_result["data"]
-                    formatted_content += f"### 当前时间\n"
-                    formatted_content += f"**日期时间**：{time_data.get('current_time', '')}\n"
-                    formatted_content += f"**星期**：{time_data.get('weekday', '')}\n"
-                    formatted_content += f"**中文日期**：{time_data.get('date', '')}\n"
-                    formatted_content += f"**中文时间**：{time_data.get('time', '')}\n\n"
+                    formatted_content += f"**当前时间**\n"
+                    formatted_content += f"日期时间：{time_data.get('current_time', '')}\n"
+                    formatted_content += f"星期：{time_data.get('weekday', '')}\n"
+                    formatted_content += f"中文日期：{time_data.get('date', '')}\n"
+                    formatted_content += f"中文时间：{time_data.get('time', '')}\n\n"
                 elif text_result.get("tool") == "web_search" and "data" in text_result:
                     search_data = text_result["data"]
-                    formatted_content += f"### 搜索结果\n"
-                    formatted_content += f"**搜索关键词**：{search_data.get('query', '')}\n"
-                    formatted_content += f"**找到结果**：{search_data.get('total_results', 0)} 个\n\n"
+                    formatted_content += f"**搜索结果**\n"
+                    formatted_content += f"搜索关键词：{search_data.get('query', '')}\n"
+                    formatted_content += f"找到结果：{search_data.get('total_results', 0)} 个\n\n"
                     
                     # 显示搜索结果
                     results = search_data.get('results', [])
                     for idx, result in enumerate(results[:3], 1):  # 显示前3个结果
-                        formatted_content += f"**{idx}. {result.get('title', '')}**\n"
+                        formatted_content += f"{idx}. **{result.get('title', '')}**\n"
                         formatted_content += f"{result.get('snippet', '')}\n"
                         formatted_content += f"来源：{result.get('site_name', '')} - [{result.get('url', '')}]({result.get('url', '')})\n\n"
                 else:
-                    formatted_content += f"### 工具结果\n"
+                    formatted_content += f"**工具结果**\n"
                     formatted_content += f"{text_result.get('content', '')}\n\n"
             
             # 添加Agent生成的内容
             if content and content.strip():
-                formatted_content += f"### AI生成内容\n"
+                formatted_content += f"**AI生成内容**\n"
                 formatted_content += f"{content}\n\n"
         
         return formatted_content
@@ -119,7 +119,7 @@ class TaskSummarizer:
             formatted_results = self.format_results_for_display(results)
             
             # 构建汇总提示词
-            system_prompt = f"""你是一个专业的任务汇总专家。请将所有子Agent的执行结果整合成一个完整、连贯的回答。
+            system_prompt = f"""你是一个专业的报告生成与任务汇总专家。请将所有todo项的执行结果整合成一个完整、连贯的回答。
 
 用户的原始问题：{original_question}
 
@@ -129,12 +129,22 @@ class TaskSummarizer:
 所有子Agent的执行结果：
 {formatted_results}
 
-请要求：
+要求：
 1. 将所有结果整合成一个完整的回答
 2. 保持markdown格式，特别是图片显示格式
 3. 确保内容连贯、逻辑清晰
 4. 如果有图片，确保图片路径正确显示
 5. 为用户提供完整、友好的回复
+6. 重要：绝对不要使用#、##、###、####等任何markdown标题格式，只使用**粗体**来强调重点内容
+7. 对于每一个to-do项必须分段，使用**一、**、**二、**、**三、**等中文数字标题格式
+8. 保持良好的段落对齐，避免格式混乱
+
+格式示例：
+**一、第一个任务标题**
+任务内容描述...
+
+**二、第二个任务标题**
+任务内容描述...
 
 请直接输出整合后的markdown内容，不要添加额外的说明。"""
             
@@ -186,6 +196,7 @@ class TaskSummarizer:
             any(tr.get("tool_name") == "web_search" for tr in r.get("tool_results", []))
             for r in results
         )
+        
         
         return {
             "response": final_content,

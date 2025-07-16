@@ -106,10 +106,13 @@ code {
 /* 标题样式 */
 .message-content h1,
 .message-content h2,
-.message-content h3 {
+.message-content h3,
+.message-content h4,
+.message-content h5 {
     margin: 12px 0 8px 0;
     color: #333;
     font-weight: 600;
+    line-height: 1.3;
 }
 
 .message-content h1 {
@@ -126,6 +129,18 @@ code {
 .message-content h3 {
     font-size: 16px;
     color: #6c757d;
+}
+
+.message-content h4 {
+    font-size: 15px;
+    color: #7d8087;
+    margin: 8px 0 6px 0;
+}
+
+.message-content h5 {
+    font-size: 14px;
+    color: #898b91;
+    margin: 6px 0 4px 0;
 }
 
 
