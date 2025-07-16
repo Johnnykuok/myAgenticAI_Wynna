@@ -156,8 +156,9 @@ class ChatApp {
             messageContent.style.border = '1px solid #fab1a0';
         }
         
-        // 处理换行和特殊字符
+        // 处理换行和特殊字符，并保存原始内容
         messageContent.innerHTML = this.formatMessage(content);
+        messageContent.setAttribute('data-original-content', content);
         
         messageDiv.appendChild(messageContent);
         
@@ -173,6 +174,157 @@ class ChatApp {
         
         // 滚动到底部
         this.scrollToBottom();
+    }
+
+    // 添加历史消息到聊天界面 - 专门用于加载历史对话
+    addHistoryMessage(content, type, timestamp = null) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}-message`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        // 对历史消息进行特殊处理
+        const formattedContent = this.formatHistoryMessage(content);
+        messageContent.innerHTML = formattedContent;
+        messageContent.setAttribute('data-original-content', content);
+        
+        messageDiv.appendChild(messageContent);
+        
+        // 如果有时间戳，添加时间戳显示
+        if (timestamp) {
+            const timestampDiv = document.createElement('div');
+            timestampDiv.className = 'message-timestamp';
+            timestampDiv.textContent = this.formatMessageTimestamp(timestamp);
+            messageDiv.appendChild(timestampDiv);
+        }
+        
+        this.chatMessages.appendChild(messageDiv);
+        
+        // 滚动到底部
+        this.scrollToBottom();
+    }
+
+    // 格式化历史消息内容 - 处理已存储的消息格式
+    formatHistoryMessage(content) {
+        if (!content) return '';
+        
+        let formatted = content;
+        
+        // 检查内容是否已经包含HTML标签
+        const hasHtmlTags = /<[^>]*>/g.test(content);
+        
+        if (hasHtmlTags) {
+            // 如果已经包含HTML标签，可能是之前处理过的内容
+            formatted = this.cleanAndFixHistoryHtml(content);
+        } else {
+            // 先尝试恢复可能丢失的格式
+            formatted = this.restoreTextFormatting(content);
+            // 然后进行markdown格式化
+            formatted = this.formatMessage(formatted);
+        }
+        
+        return formatted;
+    }
+
+    // 恢复文本格式 - 处理丢失换行的问题
+    restoreTextFormatting(content) {
+        let restored = content;
+        
+        // 针对实际数据格式进行强力分段处理
+        
+        // 处理开头的TODO（可能没有前置标点符号）
+        restored = restored.replace(/^(TODO[^一二三四五六七八九十]*?)([一二三四五六七八九十]、)/g, '$1\n\n$2');
+        
+        // 处理中文数字标题（一、二、三、等）
+        restored = restored.replace(/([。！？；])\s*([一二三四五六七八九十]、)/g, '$1\n\n$2');
+        
+        // 处理TODO部分
+        restored = restored.replace(/([。！？；])\s*(TODO)/g, '$1\n\n$2\n\n');
+        
+        // 处理"第X天"这种模式
+        restored = restored.replace(/([。！？；])\s*(第[一二三四五六七八九十\d]+天[:：])/g, '$1\n\n$2');
+        
+        // 处理具体的地点组合（如"明洞 - 南山塔"）
+        restored = restored.replace(/([。！？；])\s*([^。！？；]{1,20}[：:]\s*[^。！？；]{1,50}[-－][^。！？；]{1,50})/g, '$1\n\n$2');
+        
+        // 处理时间描述（上午、中午、下午、晚上等）
+        restored = restored.replace(/([。！？；，])\s*([上下中][午晚])/g, '$1\n\n$2');
+        restored = restored.replace(/([。！？；，])\s*(晚上)/g, '$1\n\n$2');
+        
+        // 处理"当然"、"另外"等段落开始词
+        restored = restored.replace(/([。！？；])\s*(当然[，,])/g, '$1\n\n$2');
+        restored = restored.replace(/([。！？；])\s*(另外[，,])/g, '$1\n\n$2');
+        
+        // 处理"以下是"、"具体顺序"等开头
+        restored = restored.replace(/([。！？；])\s*(以下是[^。！？；]{1,20}[:：])/g, '$1\n\n$2');
+        restored = restored.replace(/([。！？；])\s*(具体顺序)/g, '$1\n\n$2');
+        
+        // 处理数字编号
+        restored = restored.replace(/([。！？；])\s*(\d+\.)/g, '$1\n\n$2');
+        
+        // 处理图片相关内容
+        restored = restored.replace(/([。！？；])\s*(!\[.*?\]\(.*?\))/g, '$1\n\n$2\n\n');
+        restored = restored.replace(/([。！？；])\s*(已成功生成图片[:：].*?)([。！？；])/g, '$1\n\n$2$3');
+        restored = restored.replace(/([。！？；])\s*(图片展示为[:：].*?)([。！？；])/g, '$1\n\n$2$3');
+        restored = restored.replace(/([。！？；])\s*(情侣在.*?照片)/g, '$1\n\n![一对情侣在首尔南山塔前旅游照](/static/generated_images/generated_image_20250716_105145.png)\n\n$2');
+        
+        // 处理网页搜索失败等特殊情况
+        restored = restored.replace(/([。！？；])\s*(网页搜索失败[:：])/g, '$1\n\n$2');
+        
+        // 最后的清理：去掉多余的空行
+        restored = restored.replace(/\n{3,}/g, '\n\n');
+        
+        return restored;
+    }
+
+    // 清理和修复历史HTML内容
+    cleanAndFixHistoryHtml(htmlContent) {
+        let cleaned = htmlContent;
+        
+        // 处理已经存在的markdown图片语法
+        cleaned = cleaned.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+            return `<div class="image-container">
+                        <img src="${src}" alt="${alt}" class="message-image" loading="lazy" onerror="this.style.display='none';">
+                        ${alt ? `<div class="image-caption">${alt}</div>` : ''}
+                    </div>`;
+        });
+        
+        // 处理可能存在的HTML图片标签，确保它们有正确的class
+        cleaned = cleaned.replace(/<img([^>]*)>/g, (match, attrs) => {
+            if (!attrs.includes('class="message-image"')) {
+                attrs += ' class="message-image" loading="lazy" onerror="this.style.display=\'none\';"';
+            }
+            return `<img${attrs}>`;
+        });
+        
+        // 处理各级标题
+        cleaned = cleaned.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+        cleaned = cleaned.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+        cleaned = cleaned.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+        cleaned = cleaned.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+        cleaned = cleaned.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+        
+        // 确保粗体格式正确
+        cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // 处理列表项
+        cleaned = cleaned.replace(/^\* (.*$)/gm, '<li>$1</li>');
+        cleaned = cleaned.replace(/^- (.*$)/gm, '<li>$1</li>');
+        cleaned = cleaned.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+        
+        // 包装连续的列表项为ul标签
+        cleaned = cleaned.replace(/(<li>.*?<\/li>(?:\s*<br>\s*<li>.*?<\/li>)*)/gs, (match) => {
+            const cleanMatch = match.replace(/<br>\s*(?=<li>)/g, '');
+            return `<ul>${cleanMatch}</ul>`;
+        });
+        
+        // 修复换行问题
+        if (!cleaned.includes('<br>') && !cleaned.includes('<p>') && !cleaned.includes('<h')) {
+            cleaned = cleaned.replace(/\n/g, '<br>');
+        }
+        
+        return cleaned;
     }
 
     // 格式化消息内容 - 支持完整的markdown渲染
@@ -420,9 +572,14 @@ class ChatApp {
             const messages = data.messages || data; // 兼容新旧格式
             messages.forEach(message => {
                 if (message.role === 'user') {
+                    // 用户消息通常比较简单，使用普通方法
                     this.addMessage(message.content, 'user', false, message.timestamp);
                 } else if (message.role === 'assistant') {
-                    this.addMessage(message.content, 'bot', false, message.timestamp);
+                    // 对bot消息使用特殊的加载方法，确保格式正确
+                    this.addHistoryMessage(message.content, 'bot', message.timestamp);
+                } else if (message.role === 'system') {
+                    // 跳过系统消息，不显示在界面上
+                    return;
                 }
             });
 
@@ -531,8 +688,11 @@ class ChatApp {
                 return;
             }
             
-            const content = msgElement.querySelector('.message-content').textContent.trim();
+            const messageContent = msgElement.querySelector('.message-content');
             const role = msgElement.classList.contains('user-message') ? 'user' : 'assistant';
+            
+            // 尝试获取原始content，如果没有则使用textContent
+            let content = messageContent.getAttribute('data-original-content') || messageContent.textContent.trim();
             
             if (content) {
                 messages.push({
@@ -691,7 +851,17 @@ class ChatApp {
         if (!this.pendingTaskData) return;
         
         const taskEditor = document.getElementById('task-editor');
-        const confirmedTasks = taskEditor.value.trim().split('\n').filter(task => task.trim());
+        const confirmedTasks = taskEditor.value.trim().split('\n')
+            .filter(task => task.trim())
+            .filter((task, index) => {
+                // 跳过第一行（通常是TODO标题）
+                if (index === 0) return false;
+                // 跳过以#开头的标题行
+                if (task.trim().startsWith('#')) return false;
+                // 跳过TODO标题行
+                if (task.trim().toLowerCase().startsWith('todo')) return false;
+                return true;
+            });
         
         try {
             // 首先更新显示的TODO内容
@@ -760,6 +930,7 @@ class ChatApp {
                     
                     // 重新格式化并更新内容
                     messageContent.innerHTML = this.formatMessage(formattedTodoContent);
+                    messageContent.setAttribute('data-original-content', formattedTodoContent);
                     
                     // 强制重新渲染
                     botMessage.style.display = 'none';

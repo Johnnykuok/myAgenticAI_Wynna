@@ -66,9 +66,19 @@ class SimpleTaskDispatcher:
         lines = todo_content.split('\n')
         todo_items = []
         
-        for line in lines:
+        # 跳过第一行（通常是TODO标题）
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+                
             line = line.strip()
-            if line and (line[0].isdigit() or line.startswith('-') or line.startswith('*')):
+            
+            # 跳过空行
+            if not line:
+                continue
+                
+            # 只处理真正的任务项
+            if line[0].isdigit() or line.startswith('-') or line.startswith('*'):
                 clean_line = line
                 if line[0].isdigit():
                     clean_line = line.split('.', 1)[-1].strip()
