@@ -694,6 +694,16 @@ class ChatApp {
         const confirmedTasks = taskEditor.value.trim().split('\n').filter(task => task.trim());
         
         try {
+            // 首先更新显示的TODO内容
+            const updateSuccess = this.updateDisplayedTodoContent(taskEditor.value.trim());
+            
+            // 如果更新失败，添加一条说明用户修改内容的消息
+            if (!updateSuccess) {
+                const currentTime = new Date().toISOString();
+                const confirmationMessage = this.formatTodoContentForDisplay(taskEditor.value.trim());
+                this.addMessage(confirmationMessage, 'user', false, currentTime);
+            }
+            
             this.removeTaskButtons();
             this.addTypingIndicator();
             
@@ -728,6 +738,76 @@ class ChatApp {
             const currentTime = new Date().toISOString();
             this.addMessage('确认任务时出现错误，请稍后再试。', 'bot', true, currentTime);
         }
+    }
+
+    // 更新显示的TODO内容
+    updateDisplayedTodoContent(updatedTodoContent) {
+        // 找到所有bot消息
+        const botMessages = this.chatMessages.querySelectorAll('.bot-message:not(.typing-indicator)');
+        
+        // 从后往前找，寻找包含TODO的消息
+        for (let i = botMessages.length - 1; i >= 0; i--) {
+            const botMessage = botMessages[i];
+            const messageContent = botMessage.querySelector('.message-content');
+            
+            if (messageContent) {
+                const currentText = messageContent.textContent || messageContent.innerText;
+                
+                // 检查这个消息是否包含TODO内容
+                if (currentText.includes('TODO') || currentText.includes('我把它拆解成了以下几个步骤')) {
+                    // 构建新的完整消息内容
+                    const formattedTodoContent = this.formatTodoContentForDisplay(updatedTodoContent);
+                    
+                    // 重新格式化并更新内容
+                    messageContent.innerHTML = this.formatMessage(formattedTodoContent);
+                    
+                    // 强制重新渲染
+                    botMessage.style.display = 'none';
+                    botMessage.offsetHeight; // 触发重排
+                    botMessage.style.display = '';
+                    
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    // 格式化TODO内容以供显示
+    formatTodoContentForDisplay(todoContent) {
+        if (!todoContent) return 'TODO\n\n- 暂无任务';
+        
+        let formatted = todoContent.trim();
+        
+        // 确保以TODO开头
+        if (!formatted.startsWith('TODO') && !formatted.startsWith('# TODO')) {
+            formatted = 'TODO\n\n' + formatted;
+        }
+        
+        // 处理每一行，确保列表格式正确
+        const lines = formatted.split('\n');
+        const processedLines = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const trimmedLine = line.trim();
+            
+            if (trimmedLine === '') {
+                processedLines.push('');
+            } else if (trimmedLine === 'TODO' || trimmedLine.startsWith('#')) {
+                processedLines.push(line);
+            } else if (trimmedLine.startsWith('-') || trimmedLine.startsWith('*') || trimmedLine.match(/^\d+\./)) {
+                processedLines.push(line);
+            } else if (trimmedLine.length > 0) {
+                // 如果是内容行但没有列表符号，添加项目符号
+                processedLines.push('- ' + trimmedLine);
+            } else {
+                processedLines.push(line);
+            }
+        }
+        
+        return processedLines.join('\n');
     }
 
     // 取消任务
