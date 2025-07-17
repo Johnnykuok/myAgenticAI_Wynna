@@ -8,21 +8,29 @@ from config import CONVERSATIONS_DIR, get_openai_client, DOUBAO_MODEL
 conversation_summary_cache = {}
 
 def save_conversation(conversation_id, messages, summary=None, mode=None):
-    """保存对话历史到文件"""
+    """保存对话历史到文件。保护已有的时间戳不被覆盖"""
     conversation_file = os.path.join(CONVERSATIONS_DIR, f"{conversation_id}.json")
     
     # 加载现有数据（如果存在）
     existing_data = {}
+    existing_messages = []
     if os.path.exists(conversation_file):
         try:
             with open(conversation_file, 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
+                if isinstance(existing_data, dict) and "messages" in existing_data:
+                    existing_messages = existing_data["messages"]
+                elif isinstance(existing_data, list):
+                    existing_messages = existing_data
         except:
             pass
     
+    # 合并消息，保护已有的时间戳
+    merged_messages = merge_messages_preserve_timestamps(existing_messages, messages)
+    
     # 构建新数据
     data = {
-        "messages": messages
+        "messages": merged_messages
     }
     
     # 保留或更新总结
@@ -277,6 +285,44 @@ def limit_conversation_history(messages, max_rounds=3):
         limited_messages.extend(round_messages)
     
     return limited_messages
+
+def merge_messages_preserve_timestamps(existing_messages, new_messages):
+    """合并消息，保护已有的时间戳不被覆盖"""
+    # 如果没有已有消息，直接返回新消息
+    if not existing_messages:
+        return new_messages
+    
+    # 如果没有新消息，返回已有消息
+    if not new_messages:
+        return existing_messages
+    
+    # 创建一个已有消息的映射，用于查找已有的时间戳
+    existing_map = {}
+    for i, msg in enumerate(existing_messages):
+        key = f"{msg.get('role', '')}-{msg.get('content', '')}"
+        existing_map[key] = i
+    
+    # 处理新消息，保护已有的时间戳
+    merged_messages = []
+    for new_msg in new_messages:
+        key = f"{new_msg.get('role', '')}-{new_msg.get('content', '')}"
+        
+        # 如果在已有消息中找到相同的消息，保留原有的时间戳
+        if key in existing_map:
+            existing_msg = existing_messages[existing_map[key]]
+            if 'timestamp' in existing_msg:
+                # 保留原有的时间戳
+                merged_msg = dict(new_msg)
+                merged_msg['timestamp'] = existing_msg['timestamp']
+                merged_messages.append(merged_msg)
+            else:
+                # 如果原有消息没有时间戳，使用新消息的时间戳
+                merged_messages.append(new_msg)
+        else:
+            # 如果是新消息，直接添加
+            merged_messages.append(new_msg)
+    
+    return merged_messages
 
 def delete_conversation_from_cache(conversation_id):
     """从缓存中删除对话"""

@@ -220,7 +220,7 @@ def handle_task_planning(user_input, conversation_id=None):
     # 任务拆解
     decomposed_tasks = decompose_task(user_input)
     
-    # 保存初始对话
+    # 保存初始对话（为新消息设置时间戳）
     current_time = datetime.now()
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -239,7 +239,7 @@ def handle_task_planning(user_input, conversation_id=None):
         "status": "waiting_confirmation"
     }
 
-async def confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, original_question):
+async def confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, original_question, modified_todo_content=None):
     """使用新的任务分配器确认并执行任务"""
     try:
         # 重构任务为markdown格式
@@ -264,12 +264,22 @@ async def confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, origin
         summarizer = TaskSummarizer()
         final_response = summarizer.generate_final_response(cache_data)
         
-        # 更新对话记录
+        # 更新对话记录（为新消息设置时间戳）
         messages = load_conversation(conversation_id)
         current_time = datetime.now()
+        
+        # 直接使用用户修改后的todo内容，不添加前缀
+        if modified_todo_content:
+            user_confirmation_content = modified_todo_content
+        else:
+            # 如果没有修改后的内容，重构为markdown格式
+            user_confirmation_content = "# TODO\n\n"
+            for i, task in enumerate(confirmed_tasks, 1):
+                user_confirmation_content += f"{i}. {task}\n"
+        
         messages.append({
             "role": "user", 
-            "content": f"确认任务分解，开始执行：{confirmed_tasks}",
+            "content": user_confirmation_content,
             "timestamp": current_time.isoformat()
         })
         messages.append({
@@ -306,7 +316,7 @@ def confirm_and_execute_tasks(conversation_id, confirmed_tasks, original_questio
         # 汇总所有解决方案
         final_summary = summarize_solutions(original_question, solutions)
         
-        # 更新对话记录
+        # 更新对话记录（为新消息设置时间戳）
         messages = load_conversation(conversation_id)
         current_time = datetime.now()
         messages.append({

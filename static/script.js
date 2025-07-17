@@ -72,10 +72,9 @@ class ChatApp {
         const message = this.chatInput.value.trim();
         if (!message || this.isLoading) return;
 
-        // 清空输入框并立即显示用户消息（带当前时间戳）
+        // 清空输入框并立即显示用户消息（不设置时间戳，让后端设置）
         this.chatInput.value = '';
-        const currentTime = new Date().toISOString();
-        this.addMessage(message, 'user', false, currentTime);
+        this.addMessage(message, 'user', false, null);
         this.updateSendButtonState();
 
         // 添加跳动点提示AI正在思考
@@ -123,8 +122,8 @@ class ChatApp {
             if (data.mode === 'taskPlanning' && data.status === 'waiting_confirmation') {
                 this.handleTaskPlanningResponse(data);
             } else {
-                const currentTime = new Date().toISOString();
-                this.addMessage(data.response, 'bot', false, currentTime);
+                // 不设置时间戳，让后端设置
+                this.addMessage(data.response, 'bot', false, null);
             }
             
             // 再次刷新对话列表（确保对话ID正确并显示最新状态）
@@ -132,8 +131,8 @@ class ChatApp {
 
         } catch (error) {
             console.error('发送消息失败:', error);
-            const currentTime = new Date().toISOString();
-            this.addMessage('抱歉，发送消息时出现错误，请稍后再试。', 'bot', true, currentTime);
+            // 错误消息不需要时间戳
+            this.addMessage('抱歉，发送消息时出现错误，请稍后再试。', 'bot', true, null);
         } finally {
             // 移除跳动点并恢复状态
             this.removeTypingIndicator();
@@ -598,6 +597,54 @@ class ChatApp {
             this.showLoading(false);
         }
     }
+    
+    // 重新加载当前对话（用于刷新显示）
+    async reloadCurrentConversation() {
+        if (!this.currentConversationId) return;
+        
+        try {
+            const response = await fetch(`/api/conversation/${this.currentConversationId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // 更新模式状态
+            this.updateModeStatus(data.mode);
+            
+            // 清空并重新渲染消息
+            this.clearMessages();
+            
+            const messages = data.messages || data; // 兼容新旧格式
+            messages.forEach(message => {
+                if (message.role === 'user') {
+                    // 用户消息通常比较简单，使用普通方法
+                    this.addMessage(message.content, 'user', false, message.timestamp);
+                } else if (message.role === 'assistant') {
+                    // 对bot消息使用特殊的加载方法，确保格式正确
+                    this.addHistoryMessage(message.content, 'bot', message.timestamp);
+                } else if (message.role === 'system') {
+                    // 跳过系统消息，不显示在界面上
+                    return;
+                }
+            });
+
+            // 如果没有消息，显示欢迎消息
+            if (messages.length <= 1) {
+                this.showWelcomeMessage();
+            }
+            
+            // 更新对话列表UI
+            this.loadConversations();
+
+        } catch (error) {
+            console.error('重新加载对话失败:', error);
+            // 如果重新加载失败，显示错误消息
+            this.addMessage('重新加载对话失败，请刷新页面。', 'bot', true, null);
+        }
+    }
 
     // 添加打字指示器（跳动点）
     addTypingIndicator() {
@@ -689,16 +736,41 @@ class ChatApp {
             }
             
             const messageContent = msgElement.querySelector('.message-content');
+            const timestampElement = msgElement.querySelector('.message-timestamp');
             const role = msgElement.classList.contains('user-message') ? 'user' : 'assistant';
             
             // 尝试获取原始content，如果没有则使用textContent
             let content = messageContent.getAttribute('data-original-content') || messageContent.textContent.trim();
             
             if (content) {
-                messages.push({
+                const message = {
                     role: role,
                     content: content
-                });
+                };
+                
+                // 如果有时间戳，也保存时间戳
+                if (timestampElement) {
+                    // 从显示的时间戳文本中解析出ISO格式时间戳
+                    const timestampText = timestampElement.textContent.trim();
+                    if (timestampText) {
+                        // 解析时间戳格式：2025年7月17日16:40:27
+                        const match = timestampText.match(/(\d{4})年(\d{1,2})月(\d{1,2})日(\d{1,2}):(\d{1,2}):(\d{1,2})/);
+                        if (match) {
+                            const [, year, month, day, hour, minute, second] = match;
+                            const timestamp = new Date(
+                                parseInt(year),
+                                parseInt(month) - 1, // JavaScript月份从0开始
+                                parseInt(day),
+                                parseInt(hour),
+                                parseInt(minute),
+                                parseInt(second)
+                            ).toISOString();
+                            message.timestamp = timestamp;
+                        }
+                    }
+                }
+                
+                messages.push(message);
             }
         });
         
@@ -782,9 +854,8 @@ class ChatApp {
 
     // 处理任务规划模式的响应
     handleTaskPlanningResponse(data) {
-        // 显示任务分解结果
-        const currentTime = new Date().toISOString();
-        this.addMessage(data.response, 'bot', false, currentTime);
+        // 显示任务分解结果（不设置时间戳，让后端设置）
+        this.addMessage(data.response, 'bot', false, null);
         
         // 保存任务数据以备后续使用
         this.pendingTaskData = {
@@ -869,9 +940,8 @@ class ChatApp {
             
             // 如果更新失败，添加一条说明用户修改内容的消息
             if (!updateSuccess) {
-                const currentTime = new Date().toISOString();
                 const confirmationMessage = this.formatTodoContentForDisplay(taskEditor.value.trim());
-                this.addMessage(confirmationMessage, 'user', false, currentTime);
+                this.addMessage(confirmationMessage, 'user', false, null);
             }
             
             this.removeTaskButtons();
@@ -886,7 +956,8 @@ class ChatApp {
                 body: JSON.stringify({
                     conversation_id: this.pendingTaskData.conversation_id,
                     original_question: this.pendingTaskData.original_question,
-                    tasks: confirmedTasks
+                    tasks: confirmedTasks,
+                    modified_todo_content: taskEditor.value.trim()  // 添加用户修改后的原始todo内容
                 })
             });
             
@@ -898,15 +969,21 @@ class ChatApp {
                 throw new Error(data.error);
             }
             
-            const currentTime = new Date().toISOString();
-            this.addMessage(data.response, 'bot', false, currentTime);
+            // 不直接显示响应，而是重新加载完整的对话历史来显示正确的消息
             this.pendingTaskData = null;
+            
+            // 重新加载当前对话来显示正确的用户确认消息和AI响应
+            if (this.currentConversationId) {
+                await this.reloadCurrentConversation();
+            } else {
+                // 如果没有对话 ID，则直接显示响应
+                this.addMessage(data.response, 'bot', false, null);
+            }
             
         } catch (error) {
             console.error('确认任务失败:', error);
             this.removeTypingIndicator();
-            const currentTime = new Date().toISOString();
-            this.addMessage('确认任务时出现错误，请稍后再试。', 'bot', true, currentTime);
+            this.addMessage('确认任务时出现错误，请稍后再试。', 'bot', true, null);
         }
     }
 
@@ -985,8 +1062,7 @@ class ChatApp {
     cancelTasks() {
         this.removeTaskButtons();
         this.pendingTaskData = null;
-        const currentTime = new Date().toISOString();
-        this.addMessage('已取消任务规划。', 'bot', false, currentTime);
+        this.addMessage('已取消任务规划。', 'bot', false, null);
     }
 
     // 移除任务按钮

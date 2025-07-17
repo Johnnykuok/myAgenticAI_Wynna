@@ -3,6 +3,7 @@ import json
 import uuid
 import asyncio
 from functools import wraps
+from datetime import datetime
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 
@@ -77,12 +78,13 @@ async def confirm_tasks():
     conversation_id = data.get('conversation_id')
     confirmed_tasks = data.get('tasks', [])
     original_question = data.get('original_question', '')
+    modified_todo_content = data.get('modified_todo_content')  # 获取用户修改后的todo内容
     
     if not conversation_id or not confirmed_tasks:
         return jsonify({'error': '参数不完整'}), 400
     
     try:
-        result = await confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, original_question)
+        result = await confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, original_question, modified_todo_content)
         return jsonify(result)
     except Exception as e:
         print(f"确认任务执行错误: {e}")
@@ -166,6 +168,12 @@ def save_conversation_endpoint():
                 "role": "system", 
                 "content": "你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"
             })
+        
+        # 为没有时间戳的消息添加时间戳
+        current_time = datetime.now()
+        for msg in messages:
+            if msg.get('role') in ['user', 'assistant'] and 'timestamp' not in msg:
+                msg['timestamp'] = current_time.isoformat()
         
         # 保存对话
         save_conversation(conversation_id, messages)

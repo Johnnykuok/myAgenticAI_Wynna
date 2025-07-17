@@ -26,13 +26,14 @@ def run_agent(user_input, conversation_id=None, mode=None):
         conversation_id = str(uuid.uuid4())
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     
-    # 添加带时间戳的用户消息
+    # 添加带时间戳的用户消息（只有在新消息时才设置时间戳）
     current_time = datetime.now()
-    messages.append({
+    user_message = {
         "role": "user", 
         "content": user_input,
         "timestamp": current_time.isoformat()
-    })
+    }
+    messages.append(user_message)
     
     # 检查是否是新对话的第一条用户消息
     user_messages = [msg for msg in messages if msg['role'] == 'user']
@@ -82,7 +83,7 @@ def run_agent(user_input, conversation_id=None, mode=None):
             return {"response": f"抱歉，AI服务暂时不可用：{str(e)}", "conversation_id": conversation_id}
         
         message = response.choices[0].message
-        # 将OpenAI message对象转换为字典格式，添加时间戳
+        # 将OpenAI message对象转换为字典格式，添加时间戳（只有在新消息时才设置时间戳）
         current_time = datetime.now()
         message_dict = {
             "role": message.role,
@@ -114,7 +115,7 @@ def run_agent(user_input, conversation_id=None, mode=None):
                     # 执行工具调用
                     tool_result = execute_tool_call(tool_call)
                     
-                    # 添加工具响应到消息历史
+                    # 添加工具响应到消息历史（只有在新消息时才设置时间戳）
                     current_time = datetime.now()
                     messages.append({
                         "role": "tool",
@@ -124,7 +125,7 @@ def run_agent(user_input, conversation_id=None, mode=None):
                         "timestamp": current_time.isoformat()
                     })
                 except Exception as e:
-                    # 工具调用失败时添加错误信息
+                    # 工具调用失败时添加错误信息（只有在新消息时才设置时间戳）
                     current_time = datetime.now()
                     messages.append({
                         "role": "tool",
