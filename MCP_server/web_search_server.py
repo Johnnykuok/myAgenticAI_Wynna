@@ -1,11 +1,16 @@
 import json
+import os
 import requests
+from dotenv import load_dotenv
 from mcp.server import FastMCP
+
+# 加载环境变量
+load_dotenv()
 
 app = FastMCP('web-search-server')
 
-BOCHA_API_KEY = "sk-5635f459fa3c4e31b4a835678597649e"
-BOCHA_API_URL = "https://api.bochaai.com/v1/ai-search"
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY")
+BOCHA_API_URL = os.getenv("BOCHA_API_URL", "https://api.bochaai.com/v1/ai-search")
 
 @app.tool()
 async def web_search(query: str, freshness: str = "noLimit", max_results: int = 10) -> str:

@@ -2,8 +2,12 @@ import json
 import base64
 import os
 from datetime import datetime
+from dotenv import load_dotenv
 from openai import OpenAI
 from mcp.server import FastMCP
+
+# 加载环境变量
+load_dotenv()
 
 # 初始化 FastMCP 服务器
 app = FastMCP('photo-generator-server')
@@ -40,8 +44,12 @@ async def generate_image(prompt: str) -> str:
         # 解码Base64数据
         image_data = base64.b64decode(b64_image_data)
         
-        # 确保生成的图片保存目录存在
-        images_dir = "/Users/guohuanjun/Downloads/myagent_1/static/generated_images"
+        # 确保生成的图片保存目录存在  
+        images_dir = os.getenv("GENERATED_IMAGES_PATH", "static/generated_images")
+        # 如果是相对路径，确保从项目根目录开始
+        if not os.path.isabs(images_dir):
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            images_dir = os.path.join(project_root, images_dir)
         os.makedirs(images_dir, exist_ok=True)
         
         # 生成文件名（使用时间戳避免重复）

@@ -40,11 +40,17 @@ class TaskSummarizer:
                     if tool_name == "generate_image" and result_json.get("status") == "success":
                         # 图片生成结果
                         web_path = result_json.get("web_path", "")
-                        description = result_json.get("description", "生成的图片")
+                        prompt = result_json.get("prompt", "")
+                        filename = result_json.get("filename", "")
+                        
+                        # 构建图片描述，优先使用prompt，如果没有就用文件名
+                        description = prompt if prompt else (filename if filename else "生成的图片")
+                        
                         if web_path:
                             image_results.append({
                                 "path": web_path,
-                                "description": description
+                                "description": description,
+                                "filename": filename
                             })
                     elif tool_name in ["get_weather", "get_current_time"] and result_json.get("status") == "success":
                         # 文字工具结果
@@ -67,9 +73,12 @@ class TaskSummarizer:
             
             # 添加图片结果
             for img_result in image_results:
-                formatted_content += f"**{img_result['description']}**\n"
-                # 使用用户友好的描述作为图片alt文本
-                formatted_content += f"![{img_result['description']}]({img_result['path']})\n\n"
+                description = img_result['description']
+                path = img_result['path']
+                filename = img_result.get('filename', '')
+                
+                # 只添加markdown图片格式，不添加多余的文字描述
+                formatted_content += f"![{description}]({path})\n\n"
             
             # 添加文字结果
             for text_result in text_results:
@@ -121,41 +130,47 @@ class TaskSummarizer:
             # 构建汇总提示词
             system_prompt = f"""你是一个专业的报告生成与任务汇总专家。请将所有todo项的执行结果整合成一个完整、连贯的回答。
 
-用户的原始问题：{original_question}
+            要求：
+            1. 理解所有子Agent的执行结果，并将它们整合成一个完整的、有逻辑的、阅读友好的回答
+            2. **必须完整保留原始markdown图片格式**：![描述](路径)
+            3. 确保内容连贯、逻辑清晰
+            4. 如果有图片，必须保持原始的![alt](path)格式不变
+            5. 为用户提供完整、友好的回复
+            6. 重要：绝对不要使用#、##、###、####等任何markdown标题格式，只使用**粗体**来强调重点内容
+            7. 对于每一个to-do项必须分段，使用**一、**、**二、**、**三、**等中文数字标题格式
+            8. 保持良好的段落对齐，避免格式混乱
+            9. **严格要求**：如果输入中包含![描述](路径)格式的图片，输出中必须原样保留，不能修改格式
+            
+            格式示例：
+            **一、第一个任务标题**
+            任务内容描述...
+            ![图片描述](/static/generated_images/filename.png)
+            
+            **二、第二个任务标题**
+            任务内容描述...
+            
+            请直接输出整合后的markdown内容，保持图片格式不变，不要添加额外的说明。"""
 
-任务分解内容：
-{todo_content}
+            user_message = f"""  
+            用户的原始问题：
+            {original_question}
+            
+            任务分解内容：
+            {todo_content}
+            
+            所有子Agent的执行结果：
+            {formatted_results}
 
-所有子Agent的执行结果：
-{formatted_results}
-
-要求：
-1. 将所有结果整合成一个完整的回答
-2. 保持markdown格式，特别是图片显示格式
-3. 确保内容连贯、逻辑清晰
-4. 如果有图片，确保图片路径正确显示
-5. 为用户提供完整、友好的回复
-6. 重要：绝对不要使用#、##、###、####等任何markdown标题格式，只使用**粗体**来强调重点内容
-7. 对于每一个to-do项必须分段，使用**一、**、**二、**、**三、**等中文数字标题格式
-8. 保持良好的段落对齐，避免格式混乱
-
-格式示例：
-**一、第一个任务标题**
-任务内容描述...
-
-**二、第二个任务标题**
-任务内容描述...
-
-请直接输出整合后的markdown内容，不要添加额外的说明。"""
+            """
             
             response = self.client.chat.completions.create(
                 model=DOUBAO_MODEL,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": "请汇总所有结果并生成完整回答。"}
+                    {"role": "user", "content": user_message}
                 ],
-                max_tokens=2000,
-                temperature=0.3
+                max_tokens=3000,
+                temperature=0.2
             )
             
             summarized_content = response.choices[0].message.content.strip()

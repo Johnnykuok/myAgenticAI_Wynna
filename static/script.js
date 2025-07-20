@@ -574,10 +574,14 @@ class ChatApp {
                     // 用户消息通常比较简单，使用普通方法
                     this.addMessage(message.content, 'user', false, message.timestamp);
                 } else if (message.role === 'assistant') {
+                    // 跳过空白的assistant消息（没有内容且没有工具调用，或者只有工具调用但没有内容的中间消息）
+                    if (!message.content || !message.content.trim()) {
+                        return;
+                    }
                     // 对bot消息使用特殊的加载方法，确保格式正确
                     this.addHistoryMessage(message.content, 'bot', message.timestamp);
-                } else if (message.role === 'system') {
-                    // 跳过系统消息，不显示在界面上
+                } else if (message.role === 'system' || message.role === 'tool') {
+                    // 跳过系统消息和工具消息，不显示在界面上
                     return;
                 }
             });
@@ -623,10 +627,14 @@ class ChatApp {
                     // 用户消息通常比较简单，使用普通方法
                     this.addMessage(message.content, 'user', false, message.timestamp);
                 } else if (message.role === 'assistant') {
+                    // 跳过空白的assistant消息（没有内容且没有工具调用，或者只有工具调用但没有内容的中间消息）
+                    if (!message.content || !message.content.trim()) {
+                        return;
+                    }
                     // 对bot消息使用特殊的加载方法，确保格式正确
                     this.addHistoryMessage(message.content, 'bot', message.timestamp);
-                } else if (message.role === 'system') {
-                    // 跳过系统消息，不显示在界面上
+                } else if (message.role === 'system' || message.role === 'tool') {
+                    // 跳过系统消息和工具消息，不显示在界面上
                     return;
                 }
             });

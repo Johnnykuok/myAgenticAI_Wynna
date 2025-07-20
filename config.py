@@ -12,7 +12,14 @@ DOUBAO_MODEL = os.getenv("DOUBAO_MODEL")
 
 # 高德天气API配置
 GAODE_API_KEY = os.getenv("GAODE_API_KEY")
-GAODE_WEATHER_URL = os.getenv("GAODE_WEATHER_URL")
+GAODE_WEATHER_URL = os.getenv("GAODE_WEATHER_URL", "https://restapi.amap.com/v3/weather/weatherInfo")
+
+# 博查AI搜索API配置
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY")
+BOCHA_API_URL = os.getenv("BOCHA_API_URL", "https://api.bochaai.com/v1/ai-search")
+
+# 生成图片保存路径
+GENERATED_IMAGES_PATH = os.getenv("GENERATED_IMAGES_PATH", "static/generated_images")
 
 # Flask应用配置
 FLASK_DEBUG = os.getenv("FLASK_DEBUG", "True").lower() == "true"

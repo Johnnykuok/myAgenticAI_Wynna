@@ -2,7 +2,11 @@ import json
 import os
 import httpx
 from datetime import datetime
+from dotenv import load_dotenv
 from mcp.server import FastMCP
+
+# 加载环境变量
+load_dotenv()
 
 # 初始化 FastMCP 服务器
 app = FastMCP('text-generator-server')
