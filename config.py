@@ -31,7 +31,7 @@ CONVERSATIONS_DIR = "conversations"
 MAX_CONVERSATION_ROUNDS = 3
 
 # 系统提示词
-SYSTEM_PROMPT = "你是由郭桓君同学开发的智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹"
+SYSTEM_PROMPT = "你是由郭桓君同学开发的通用AI智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹。你既可以与用户闲聊，也可以进行复杂任务的规划、分配、执行和汇总。"
 
 # 初始化OpenAI客户端
 def get_openai_client():
