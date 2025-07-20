@@ -7,13 +7,13 @@
 ![MCP](https://img.shields.io/badge/MCP-Protocol-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-*一个基于Python和豆包大模型的智能AI助手系统，支持任务拆解、并行执行和智能汇总*
+*一个基于Python、MCP协议和豆包大模型的通用人工智能体，支持任务拆解、并行执行和智能汇总*
 
-[功能特色](#功能特色) •
-[快速开始](#快速开始) •
-[项目架构](#项目架构) •
-[API文档](#api文档) •
-[配置说明](#配置说明)
+[功能特色](#-功能特色) •
+[快速开始](#-快速开始) •
+[项目架构](#️-项目架构) •
+[API文档](#-api文档) •
+[配置说明](#️-配置说明)
 
 </div>
 
@@ -21,16 +21,17 @@
 
 ## 🌟 功能特色
 
-### 🎯 双模式智能交互
+### 🎯 双模式智能判断
 - **ChatBot模式**：处理简单对话，如天气查询、时间获取、日常聊天
-- **TaskPlanning模式**：智能拆解复杂任务，支持用户确认和编辑
+- **TaskPlanning模式**：智能拆解复杂任务，生成todo.md，支持用户确认和编辑
 
 ### 🔄 并行任务执行
-- **图片生成Agent**：基于豆包文生图API，生成高质量图片
+- **任务分配节点**：任务分配Agent将to-do项智能调度给下面专属Agent执行
+- **图片生成Agent**：基于文生图API，生成高质量图片
 - **文字生成Agent**：处理文本任务、天气查询、时间获取
 - **网页搜索Agent**：集成博查AI搜索，获取最新网络信息
 
-### 💾 智能记忆管理
+### 💾 智能体记忆管理
 - 持久化对话历史
 - 自动生成对话摘要
 - 时间戳保护机制
@@ -42,10 +43,6 @@
 - 图片预览功能
 
 ## 🚀 快速开始
-
-### 环境要求
-- Python 3.8+
-- Node.js (用于前端依赖，可选)
 
 ### 安装步骤
 
@@ -61,10 +58,44 @@ pip install -r requirements.txt
 ```
 
 3. **配置环境变量**
+
+
+创建 `.env` 文件并配置以下参数：
 ```bash
 cp .env.example .env
 # 编辑 .env 文件，填入你的API密钥
 ```
+```bash
+# 豆包/字节跳动 API 配置
+DOUBAO_API_KEY=your_doubao_api_key
+DOUBAO_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+DOUBAO_MODEL=doubao-seed-1-6-flash-250615
+
+# 高德地图 API 配置
+GAODE_API_KEY=your_gaode_api_key
+GAODE_WEATHER_URL=https://restapi.amap.com/v3/weather/weatherInfo
+
+# 博查AI搜索API配置
+BOCHA_API_KEY=your_bocha_api_key
+BOCHA_API_URL=https://api.bochaai.com/v1/ai-search
+
+# Flask 配置
+FLASK_HOST=0.0.0.0
+FLASK_PORT=8070
+FLASK_DEBUG=True
+
+# 生成图片保存路径
+GENERATED_IMAGES_PATH=static/generated_images
+```
+
+API密钥获取
+
+**豆包API**: 访问 [火山引擎](https://www.volcengine.com/) 获取
+**高德地图API**: 访问 [高德开放平台](https://lbs.amap.com/) 获取
+**博查AI搜索**: 访问 [博查AI](https://www.bochaai.com/) 获取
+
+
+
 
 4. **启动服务**
 ```bash
@@ -106,30 +137,7 @@ myagent_1/
 
 ### 工作流程
 
-```mermaid
-graph TD
-    A[用户输入] --> B{问题类型判断}
-    B -->|简单问题| C[ChatBot模式]
-    B -->|复杂任务| D[TaskPlanning模式]
-    
-    C --> E[直接回答]
-    
-    D --> F[任务拆解]
-    F --> G[用户确认]
-    G --> H[任务分配器]
-    
-    H --> I[图片生成Agent]
-    H --> J[文字生成Agent]
-    H --> K[网页搜索Agent]
-    
-    I --> L[任务汇总器]
-    J --> L
-    K --> L
-    
-    L --> M[最终结果]
-    E --> N[保存对话]
-    M --> N
-```
+![Agent工作流程图](static/my_agent_flow.png)
 
 ## 📚 API文档
 
@@ -177,41 +185,6 @@ DELETE /api/conversation/{id}    # 删除对话
   "status": "success|waiting_confirmation|completed"
 }
 ```
-
-## ⚙️ 配置说明
-
-### 环境变量配置
-
-创建 `.env` 文件并配置以下参数：
-
-```bash
-# 豆包/字节跳动 API 配置
-DOUBAO_API_KEY=your_doubao_api_key
-DOUBAO_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
-DOUBAO_MODEL=doubao-seed-1-6-flash-250615
-
-# 高德地图 API 配置
-GAODE_API_KEY=your_gaode_api_key
-GAODE_WEATHER_URL=https://restapi.amap.com/v3/weather/weatherInfo
-
-# 博查AI搜索API配置
-BOCHA_API_KEY=your_bocha_api_key
-BOCHA_API_URL=https://api.bochaai.com/v1/ai-search
-
-# Flask 配置
-FLASK_HOST=0.0.0.0
-FLASK_PORT=8070
-FLASK_DEBUG=True
-
-# 生成图片保存路径
-GENERATED_IMAGES_PATH=static/generated_images
-```
-
-### API密钥获取
-
-1. **豆包API**: 访问 [火山引擎](https://www.volcengine.com/) 获取
-2. **高德地图API**: 访问 [高德开放平台](https://lbs.amap.com/) 获取
-3. **博查AI搜索**: 访问 [博查AI](https://www.bochaai.com/) 获取
 
 ## 🛠️ 开发指南
 
