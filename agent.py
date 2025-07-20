@@ -11,6 +11,7 @@ from conversation import (
 )
 from utils.timestamp_utils import get_current_timestamp
 from utils.message_utils import create_user_message, create_assistant_message, create_tool_message, create_system_message
+from utils.log_manager import log_info, log_success, log_error, log_agent
 
 def run_agent(user_input, conversation_id=None, mode=None):
     """运行智能体对话"""
@@ -41,7 +42,7 @@ def run_agent(user_input, conversation_id=None, mode=None):
         
         # 启动异步生成总结
         first_user_message = user_input
-        print(f"启动新对话总结生成: {conversation_id}")
+        log_info(f"启动新对话总结生成: {conversation_id}")
         
         def generate_summary_for_new_conversation():
             try:
@@ -49,9 +50,9 @@ def run_agent(user_input, conversation_id=None, mode=None):
                 summary = generate_conversation_summary(first_user_message)
                 conversation_summary_cache[conversation_id] = summary
                 save_conversation(conversation_id, messages, summary)
-                print(f"新对话总结生成完成: {conversation_id} -> {summary}")
+                log_success(f"新对话总结生成完成: {conversation_id} -> {summary}")
             except Exception as e:
-                print(f"新对话总结生成失败: {e}")
+                log_error(f"新对话总结生成失败: {e}")
                 fallback = first_user_message[:8] if len(first_user_message) > 8 else first_user_message
                 conversation_summary_cache[conversation_id] = fallback
         
@@ -117,7 +118,7 @@ def run_agent(user_input, conversation_id=None, mode=None):
             for tool_call in message.tool_calls:
                 # 验证工具调用信息是否完整
                 if not tool_call.function.name or not tool_call.function.name.strip():
-                    print(f"警告：跳过无效的工具调用，工具名为空: {tool_call.id}")
+                    log_error(f"跳过无效的工具调用，工具名为空: {tool_call.id}")
                     continue
                     
                 try:

@@ -1,6 +1,7 @@
 import json
 from typing import Dict, Any, List
 from config import get_openai_client, DOUBAO_MODEL
+from utils.log_manager import log_info, log_success, log_error, log_task
 
 class TaskSummarizer:
     """任务汇总与生成节点"""
@@ -10,6 +11,7 @@ class TaskSummarizer:
     
     def format_results_for_display(self, results: List[Dict[str, Any]]) -> str:
         """格式化结果用于前端显示，支持图片和文字混合"""
+        log_task(f"开始格式化 {len(results)} 个任务结果")
         formatted_content = ""
         
         for i, result in enumerate(results, 1):
@@ -21,8 +23,10 @@ class TaskSummarizer:
             
             # 添加任务标题
             formatted_content += f"\n**{i}. {todo}**\n\n"
+            log_info(f"处理任务 {i}: {todo[:30]}... (Agent: {agent_type})")
             
             if status == "error":
+                log_error(f"任务 {i} 执行失败: {content}")
                 formatted_content += f"❌ {content}\n\n"
                 continue
             
@@ -33,6 +37,7 @@ class TaskSummarizer:
             for tool_result in tool_results:
                 tool_name = tool_result.get("tool_name", "")
                 result_content = tool_result.get("result", "")
+                log_info(f"处理工具结果: {tool_name}")
                 
                 try:
                     result_json = json.loads(result_content)
@@ -42,6 +47,7 @@ class TaskSummarizer:
                         web_path = result_json.get("web_path", "")
                         prompt = result_json.get("prompt", "")
                         filename = result_json.get("filename", "")
+                        log_success(f"图片生成成功: {filename}")
                         
                         # 构建图片描述，优先使用prompt，如果没有就用文件名
                         description = prompt if prompt else (filename if filename else "生成的图片")
@@ -54,18 +60,22 @@ class TaskSummarizer:
                             })
                     elif tool_name in ["get_weather", "get_current_time"] and result_json.get("status") == "success":
                         # 文字工具结果
+                        log_success(f"{tool_name} 工具调用成功")
                         text_results.append({
                             "tool": tool_name,
                             "data": result_json
                         })
                     elif tool_name == "web_search" and result_json.get("status") == "success":
                         # 网页搜索结果
+                        search_count = result_json.get("total_results", 0)
+                        log_success(f"网页搜索成功，找到 {search_count} 个结果")
                         text_results.append({
                             "tool": tool_name,
                             "data": result_json
                         })
-                except:
+                except Exception as e:
                     # 如果无法解析JSON，直接添加文本内容
+                    log_error(f"解析工具结果失败 {tool_name}: {str(e)}")
                     text_results.append({
                         "tool": tool_name,
                         "content": result_content
@@ -119,10 +129,12 @@ class TaskSummarizer:
                 formatted_content += f"**AI生成内容**\n"
                 formatted_content += f"{content}\n\n"
         
+        log_success(f"格式化完成，生成内容长度: {len(formatted_content)} 字符")
         return formatted_content
     
     def summarize_all_results(self, original_question: str, todo_content: str, results: List[Dict[str, Any]]) -> str:
         """汇总所有子Agent的输出"""
+        log_task("开始汇总所有任务结果")
         try:
             # 格式化所有结果
             formatted_results = self.format_results_for_display(results)
@@ -163,6 +175,7 @@ class TaskSummarizer:
 
             """
             
+            log_info("调用豆包模型进行结果汇总")
             response = self.client.chat.completions.create(
                 model=DOUBAO_MODEL,
                 messages=[
@@ -174,20 +187,23 @@ class TaskSummarizer:
             )
             
             summarized_content = response.choices[0].message.content.strip()
+            log_success(f"汇总完成，生成内容长度: {len(summarized_content)} 字符")
             
             # 如果汇总失败，返回格式化的原始结果
             if not summarized_content:
+                log_error("汇总内容为空，返回格式化的原始结果")
                 return formatted_results
             
             return summarized_content
             
         except Exception as e:
-            print(f"汇总结果失败: {e}")
+            log_error(f"汇总结果失败: {e}")
             # 如果汇总失败，返回格式化的原始结果
             return self.format_results_for_display(results)
     
     def generate_final_response(self, cache_data: Dict[str, Any]) -> Dict[str, Any]:
         """生成最终的响应数据"""
+        log_task("开始生成最终响应数据")
         original_question = cache_data.get("original_question", "")
         todo_content = cache_data.get("todo_content", "")
         results = cache_data.get("results", [])
@@ -212,6 +228,7 @@ class TaskSummarizer:
             for r in results
         )
         
+        log_success(f"最终响应生成完成 - 总任务: {total_tasks}, 成功: {successful_tasks}, 失败: {failed_tasks}")
         
         return {
             "response": final_content,

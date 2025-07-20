@@ -8,6 +8,7 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from config import get_openai_client, DOUBAO_MODEL
 from utils.timestamp_utils import get_current_timestamp
+from utils.log_manager import log_info, log_success, log_error, log_agent, log_task
 
 class MCPAgentClient:
     """MCP协议的Agent客户端"""
@@ -41,7 +42,9 @@ class MCPAgentClient:
     
     async def process_task(self, original_question: str, todo_content: str, single_todo: str) -> Dict[str, Any]:
         """处理单个任务"""
+        log_agent(f"开始处理任务: {single_todo[:50]}...")
         # 为每个任务创建独立的会话
+        log_info(f"创建MCP会话: {self.server_script}")
         session, exit_stack = await self._create_session()
         
         try:
@@ -65,7 +68,9 @@ class MCPAgentClient:
             ]
             
             # 获取所有MCP服务器工具列表信息
+            log_info("获取MCP服务器工具列表")
             response = await session.list_tools()
+            log_success(f"发现 {len(response.tools)} 个可用工具: {[tool.name for tool in response.tools]}")
             
             # 生成function call的描述信息
             available_tools = [{
@@ -78,6 +83,7 @@ class MCPAgentClient:
             } for tool in response.tools]
             
             # 请求大模型
+            log_info(f"调用豆包模型进行任务处理，可用工具数: {len(available_tools)}")
             response = self.client.chat.completions.create(
                 model=DOUBAO_MODEL,
                 messages=messages,
@@ -106,6 +112,7 @@ class MCPAgentClient:
             
             if content.finish_reason == "tool_calls":
                 # 处理工具调用
+                log_info(f"模型请求调用 {len(content.message.tool_calls)} 个工具")
                 tool_calls_for_message = []
                 tool_results = []
                 
@@ -114,8 +121,9 @@ class MCPAgentClient:
                     tool_args = json.loads(tool_call.function.arguments)
                     
                     # 执行工具
+                    log_agent(f"执行MCP工具: {tool_name}，参数: {tool_args}")
                     tool_result = await session.call_tool(tool_name, tool_args)
-                    print(f"🔧 Agent调用工具: {tool_name}，参数: {tool_args}")
+                    log_success(f"MCP工具执行完成: {tool_name}")
                     
                     # 收集工具调用信息
                     tool_calls_for_message.append({
@@ -152,18 +160,22 @@ class MCPAgentClient:
                 messages.extend(tool_results)
                 
                 # 将上面的结果再返回给大模型用于生成最终的结果
+                log_info("调用豆包模型生成最终结果")
                 final_response = self.client.chat.completions.create(
                     model=DOUBAO_MODEL,
                     messages=messages,
                 )
                 result_data["content"] = final_response.choices[0].message.content
+                log_success(f"任务处理完成: {single_todo[:30]}...")
             else:
                 result_data["content"] = content.message.content
+                log_success(f"任务直接回答完成: {single_todo[:30]}...")
             
             return result_data
             
         finally:
             # 确保会话在任务完成后正确关闭
+            log_info("关闭MCP会话")
             await exit_stack.aclose()
 
 class TaskDispatcher:
@@ -181,7 +193,7 @@ class TaskDispatcher:
     async def initialize_agents(self):
         """初始化所有Agent连接"""
         # 不再需要预连接，每个任务都会创建独立会话
-        print("✅ 所有Agent初始化完成")
+        log_success("所有Agent初始化完成")
     
     def classify_todo_item(self, todo_item: str) -> str:
         """使用豆包大模型分类TODO项"""
@@ -217,7 +229,7 @@ class TaskDispatcher:
                 return "text"
                 
         except Exception as e:
-            print(f"任务分类失败: {e}")
+            log_error(f"任务分类失败: {e}")
             return "text"  # 默认分配给text agent
     
     def parse_todo_content(self, todo_content: str) -> List[str]:
@@ -245,7 +257,7 @@ class TaskDispatcher:
         """分配并执行所有任务"""
         # 解析TODO项
         todo_items = self.parse_todo_content(todo_content)
-        print(f"📋 解析出 {len(todo_items)} 个任务项")
+        log_task(f"解析出 {len(todo_items)} 个任务项")
         
         if not todo_items:
             return "没有找到有效的任务项"
@@ -257,7 +269,7 @@ class TaskDispatcher:
             if agent_type not in classified_tasks:
                 classified_tasks[agent_type] = []
             classified_tasks[agent_type].append(todo_item)
-            print(f"📝 任务 '{todo_item[:30]}...' 分配给 {agent_type} Agent")
+            log_task(f"任务 '{todo_item[:30]}...' 分配给 {agent_type} Agent")
         
         # 并行执行任务
         all_results = []
@@ -272,7 +284,7 @@ class TaskDispatcher:
                 try:
                     return await agent.process_task(original_question, todo_content, task)
                 except Exception as e:
-                    print(f"❌ 任务执行失败: {task[:30]}... - {e}")
+                    log_error(f"任务执行失败: {task[:30]}... - {e}")
                     return {
                         "todo": task,
                         "agent_type": agent_type,
@@ -313,7 +325,7 @@ class TaskDispatcher:
     async def cleanup(self):
         """清理所有Agent连接"""
         # 不再需要清理，每个任务的会话都已独立清理
-        print("🧹 所有Agent连接已清理")
+        log_info("所有Agent连接已清理")
 
 # 全局任务分配器实例
 _task_dispatcher = None

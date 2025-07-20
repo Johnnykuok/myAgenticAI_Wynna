@@ -20,6 +20,19 @@ class ChatApp {
         this.conversationHistory = document.getElementById('conversation-history');
         this.loading = document.getElementById('loading');
         this.modeStatus = document.getElementById('mode-status');
+        
+        // 日志相关元素
+        this.logPanel = document.getElementById('log-panel');
+        this.logContent = document.getElementById('log-content');
+        this.toggleLogsBtn = document.getElementById('toggle-logs-btn');
+        this.autoScrollBtn = document.getElementById('auto-scroll-btn');
+        this.clearLogsBtn = document.getElementById('clear-logs-btn');
+        this.closeLogsBtn = document.getElementById('close-logs-btn');
+        
+        // 日志状态
+        this.isLogPanelVisible = false;
+        this.autoScroll = true;
+        this.logPollingActive = false;
     }
 
     // 绑定事件监听器
@@ -42,6 +55,12 @@ class ChatApp {
         this.chatInput.addEventListener('input', () => {
             this.updateSendButtonState();
         });
+
+        // 日志面板相关事件
+        this.toggleLogsBtn.addEventListener('click', () => this.toggleLogPanel());
+        this.autoScrollBtn.addEventListener('click', () => this.toggleAutoScroll());
+        this.clearLogsBtn.addEventListener('click', () => this.clearLogs());
+        this.closeLogsBtn.addEventListener('click', () => this.hideLogPanel());
 
         // 点击外部关闭所有菜单
         document.addEventListener('click', (e) => {
@@ -1143,6 +1162,148 @@ class ChatApp {
             console.error('删除失败:', error);
             alert('删除失败，请稍后再试');
         }
+    }
+
+    // 日志面板相关方法
+    toggleLogPanel() {
+        if (this.isLogPanelVisible) {
+            this.hideLogPanel();
+        } else {
+            this.showLogPanel();
+        }
+    }
+
+    showLogPanel() {
+        this.isLogPanelVisible = true;
+        this.logPanel.classList.remove('hidden');
+        this.toggleLogsBtn.textContent = '隐藏日志';
+        this.loadRecentLogs();
+        this.startLogPolling();
+    }
+
+    hideLogPanel() {
+        this.isLogPanelVisible = false;
+        this.logPanel.classList.add('hidden');
+        this.toggleLogsBtn.textContent = '显示日志';
+        this.stopLogPolling();
+    }
+
+    toggleAutoScroll() {
+        this.autoScroll = !this.autoScroll;
+        this.autoScrollBtn.classList.toggle('active', this.autoScroll);
+        this.autoScrollBtn.textContent = this.autoScroll ? '自动滚动' : '手动滚动';
+    }
+
+    async clearLogs() {
+        try {
+            const response = await fetch('/api/logs/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                this.logContent.innerHTML = '<div class="log-message"><span class="log-time">系统</span><span class="log-text">🧹 日志已清空</span></div>';
+            }
+        } catch (error) {
+            console.error('清空日志失败:', error);
+        }
+    }
+
+    async loadRecentLogs() {
+        try {
+            const response = await fetch('/api/logs/recent?limit=100');
+            const data = await response.json();
+            
+            if (data.logs && data.logs.length > 0) {
+                this.logContent.innerHTML = '';
+                data.logs.forEach(log => this.appendLogMessage(log));
+                this.scrollLogToBottom();
+            }
+        } catch (error) {
+            console.error('加载日志失败:', error);
+        }
+    }
+
+    startLogPolling() {
+        if (this.logPollingActive) return;
+        this.logPollingActive = true;
+        this.pollLogs();
+    }
+
+    stopLogPolling() {
+        this.logPollingActive = false;
+    }
+
+    async pollLogs() {
+        if (!this.logPollingActive || !this.isLogPanelVisible) return;
+
+        try {
+            const response = await fetch('/api/logs/stream?timeout=10');
+            const data = await response.json();
+            
+            if (data.logs && data.logs.length > 0) {
+                data.logs.forEach(log => this.appendLogMessage(log));
+                if (this.autoScroll) {
+                    this.scrollLogToBottom();
+                }
+            }
+        } catch (error) {
+            console.error('获取日志失败:', error);
+        }
+
+        // 继续轮询
+        if (this.logPollingActive) {
+            setTimeout(() => this.pollLogs(), 100);
+        }
+    }
+
+    appendLogMessage(log) {
+        const logDiv = document.createElement('div');
+        logDiv.className = 'log-message';
+        
+        // 根据消息内容判断日志级别
+        let level = 'info';
+        if (log.message.includes('✅') || log.message.includes('成功')) {
+            level = 'success';
+        } else if (log.message.includes('❌') || log.message.includes('错误') || log.message.includes('失败')) {
+            level = 'error';
+        } else if (log.message.includes('⚠️') || log.message.includes('警告')) {
+            level = 'warning';
+        } else if (log.message.includes('📋') || log.message.includes('任务')) {
+            level = 'task';
+        } else if (log.message.includes('🤖') || log.message.includes('Agent')) {
+            level = 'agent';
+        }
+        
+        logDiv.classList.add(level);
+        
+        const timeStr = new Date(log.timestamp).toLocaleTimeString();
+        logDiv.innerHTML = `
+            <span class="log-time">${timeStr}</span>
+            <span class="log-text">${this.escapeHtml(log.message)}</span>
+        `;
+        
+        this.logContent.appendChild(logDiv);
+        
+        // 限制日志数量，避免过多占用内存
+        const messages = this.logContent.querySelectorAll('.log-message');
+        if (messages.length > 500) {
+            messages[0].remove();
+        }
+    }
+
+    scrollLogToBottom() {
+        if (this.autoScroll && this.logContent) {
+            this.logContent.scrollTop = this.logContent.scrollHeight;
+        }
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 }
 

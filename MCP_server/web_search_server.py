@@ -25,6 +25,7 @@ async def web_search(query: str, freshness: str = "noLimit", max_results: int = 
     Returns:
         搜索结果的JSON字符串，包含snippet和summary字段
     """
+    print(f"🔍 收到网页搜索请求: {query} (时效性: {freshness}, 最大结果: {max_results})")
     try:
         data = {
             "query": query,
@@ -33,6 +34,7 @@ async def web_search(query: str, freshness: str = "noLimit", max_results: int = 
             "stream": False
         }
         
+        print(f"📡 调用博查AI搜索API...")
         response = requests.post(
             BOCHA_API_URL,
             headers={"Authorization": f"Bearer {BOCHA_API_KEY}"},
@@ -40,6 +42,7 @@ async def web_search(query: str, freshness: str = "noLimit", max_results: int = 
             timeout=30
         )
         
+        print(f"✅ 博查AI API响应，状态码: {response.status_code}")
         if response.status_code == 200:
             result = response.json()
             
@@ -62,6 +65,7 @@ async def web_search(query: str, freshness: str = "noLimit", max_results: int = 
                         }
                         parsed_results.append(search_result)
             
+            print(f"🔍 搜索完成，找到 {len(parsed_results)} 个结果")
             return json.dumps({
                 "status": "success",
                 "query": query,
@@ -70,6 +74,7 @@ async def web_search(query: str, freshness: str = "noLimit", max_results: int = 
             }, ensure_ascii=False)
             
         else:
+            print(f"❌ 搜索请求失败，状态码: {response.status_code}")
             return json.dumps({
                 "status": "error",
                 "message": f"搜索请求失败，状态码: {response.status_code}",
@@ -77,11 +82,13 @@ async def web_search(query: str, freshness: str = "noLimit", max_results: int = 
             }, ensure_ascii=False)
             
     except requests.exceptions.RequestException as e:
+        print(f"❌ 网络请求异常: {str(e)}")
         return json.dumps({
             "status": "error",
             "message": f"网络请求异常: {str(e)}"
         }, ensure_ascii=False)
     except Exception as e:
+        print(f"❌ 搜索过程中发生异常: {str(e)}")
         return json.dumps({
             "status": "error",
             "message": f"搜索过程中发生异常: {str(e)}"

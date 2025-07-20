@@ -7,6 +7,7 @@ from task_dispatcher import get_task_dispatcher, get_task_results
 from task_summarizer import TaskSummarizer
 from utils.timestamp_utils import get_current_timestamp
 from utils.message_utils import create_user_message, create_assistant_message, create_system_message
+from utils.log_manager import log_info, log_success, log_error, log_task
 
 def judge_question_type(user_message):
     """判断用户问题类型：chatbot模式 vs 任务规划模式"""
@@ -80,12 +81,12 @@ def judge_question_type(user_message):
         reason = result.get("reason", "")
         
         # 记录判断结果
-        print(f"问题类型判断: {question_type}, 置信度: {confidence}, 理由: {reason}")
+        log_info(f"问题类型判断: {question_type}, 置信度: {confidence}, 理由: {reason}")
         
         return question_type
             
     except Exception as e:
-        print(f"判断问题类型失败: {e}")
+        log_error(f"判断问题类型失败: {e}")
         # 失败时默认为chatBot模式
         return "chatBot"
 
@@ -153,13 +154,13 @@ def decompose_task(user_message):
         markdown = result.get("markdown", "")
         
         # 记录拆解结果
-        print(f"任务拆解成功，共{len(tasks)}个步骤")
+        log_task(f"任务拆解成功，共{len(tasks)}个步骤")
         
         # 返回markdown格式，保持与原有代码兼容
         return markdown
         
     except Exception as e:
-        print(f"任务拆解失败: {e}")
+        log_error(f"任务拆解失败: {e}")
         return f"任务拆解失败：{str(e)}"
 
 
@@ -197,13 +198,13 @@ async def confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, origin
         for i, task in enumerate(confirmed_tasks, 1):
             todo_content += f"{i}. {task}\n"
         
-        print(f"📋 开始执行 {len(confirmed_tasks)} 个任务")
+        log_task(f"开始执行 {len(confirmed_tasks)} 个任务")
         
         # 获取任务分配器并执行任务
         dispatcher = await get_task_dispatcher()
         cache_key = await dispatcher.dispatch_and_execute_tasks(original_question, todo_content)
         
-        print(f"✅ 所有任务执行完成，缓存键: {cache_key}")
+        log_success(f"所有任务执行完成，缓存键: {cache_key}")
         
         # 获取执行结果
         cache_data = get_task_results(cache_key)
@@ -236,7 +237,7 @@ async def confirm_and_execute_tasks_new(conversation_id, confirmed_tasks, origin
         return final_response
         
     except Exception as e:
-        print(f"执行任务失败: {e}")
+        log_error(f"执行任务失败: {e}")
         return {
             "response": f"执行任务时出现错误：{str(e)}",
             "conversation_id": conversation_id,

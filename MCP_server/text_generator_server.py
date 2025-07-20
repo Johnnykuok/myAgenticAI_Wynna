@@ -26,6 +26,7 @@ async def get_weather(location: str) -> str:
     Returns:
         天气信息的JSON字符串
     """
+    print(f"🌤️ 收到天气查询请求: {location}")
     params = {
         "key": GAODE_API_KEY,
         "city": location,
@@ -33,12 +34,15 @@ async def get_weather(location: str) -> str:
     }
     
     try:
+        print(f"📡 调用高德天气API，查询城市: {location}")
         async with httpx.AsyncClient() as client:
             response = await client.get(WEATHER_URL, params=params)
             result = response.json()
+            print(f"✅ 高德API响应成功，状态: {result.get('status')}")
             
             if result.get("status") == "1" and result.get("count") != "0":
                 weather_data = result["lives"][0]
+                print(f"🌤️ 天气查询成功: {weather_data['province']}{weather_data['city']} - {weather_data['weather']}")
                 return json.dumps({
                     "status": "success",
                     "location": f"{weather_data['province']}{weather_data['city']}",
@@ -49,12 +53,14 @@ async def get_weather(location: str) -> str:
                     "report_time": weather_data["reporttime"]
                 }, ensure_ascii=False)
             else:
+                print(f"❌ 未找到城市天气信息: {location}")
                 return json.dumps({
                     "status": "error", 
                     "message": "未找到该城市天气信息"
                 }, ensure_ascii=False)
                 
     except Exception as e:
+        print(f"❌ 天气API请求失败: {str(e)}")
         return json.dumps({
             "status": "error", 
             "message": f"API请求失败: {str(e)}"
@@ -68,8 +74,10 @@ async def get_current_time() -> str:
     Returns:
         当前时间的JSON字符串
     """
+    print("🕐 收到时间查询请求")
     try:
         current_time = datetime.now()
+        print(f"✅ 时间查询成功: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
         return json.dumps({
             "status": "success",
             "current_time": current_time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -78,6 +86,7 @@ async def get_current_time() -> str:
             "time": current_time.strftime("%H时%M分%S秒")
         }, ensure_ascii=False)
     except Exception as e:
+        print(f"❌ 时间查询失败: {str(e)}")
         return json.dumps({
             "status": "error", 
             "message": f"获取时间失败: {str(e)}"

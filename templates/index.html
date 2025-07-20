@@ -30,6 +30,9 @@
                     <h2>AI智能体</h2>
                     <p>由郭桓君同学开发 · <span id="mode-status">可开启chatBot模式或任务规划模式</span></p>
                 </div>
+                <div class="header-controls">
+                    <button id="toggle-logs-btn" class="toggle-logs-btn">显示日志</button>
+                </div>
             </div>
             
             <div class="chat-container">
@@ -53,6 +56,24 @@
                     <div class="input-footer">
                         <small></small>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日志显示面板 -->
+        <div id="log-panel" class="log-panel hidden">
+            <div class="log-header">
+                <h3>🔧 实时日志</h3>
+                <div class="log-controls">
+                    <button id="auto-scroll-btn" class="log-control-btn active">自动滚动</button>
+                    <button id="clear-logs-btn" class="log-control-btn">清空日志</button>
+                    <button id="close-logs-btn" class="log-control-btn">×</button>
+                </div>
+            </div>
+            <div id="log-content" class="log-content">
+                <div class="log-message">
+                    <span class="log-time">系统启动</span>
+                    <span class="log-text">🚀 等待日志消息...</span>
                 </div>
             </div>
         </div>

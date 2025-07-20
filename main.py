@@ -15,6 +15,7 @@ from conversation import (
     get_all_conversations, load_conversation, save_conversation, 
     delete_conversation_from_cache
 )
+from utils.log_manager import init_log_capture, get_log_capture
 
 # 初始化Flask应用
 app = Flask(__name__)
@@ -22,6 +23,9 @@ CORS(app)
 
 # 确保对话目录存在
 ensure_conversations_dir()
+
+# 初始化日志捕获系统
+log_capture = init_log_capture()
 
 def async_route(f):
     """装饰器：让Flask支持async路由"""
@@ -199,6 +203,36 @@ def delete_conversation(conversation_id):
         
         return jsonify({'success': True, 'message': '对话删除成功'})
         
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# 日志相关API
+@app.route('/api/logs/recent', methods=['GET'])
+def get_recent_logs():
+    """获取最近的日志"""
+    try:
+        limit = int(request.args.get('limit', 50))
+        logs = log_capture.get_recent_logs(limit)
+        return jsonify({'logs': logs})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/logs/stream', methods=['GET'])
+def stream_logs():
+    """流式获取新日志（长轮询）"""
+    try:
+        timeout = float(request.args.get('timeout', 30.0))
+        new_logs = log_capture.get_new_logs(timeout)
+        return jsonify({'logs': new_logs})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/logs/clear', methods=['POST'])
+def clear_logs():
+    """清空日志"""
+    try:
+        log_capture.clear_logs()
+        return jsonify({'success': True, 'message': '日志已清空'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -846,4 +846,204 @@ code {
         width: 10px;
         height: 10px;
     }
+    
+    .log-panel {
+        width: 350px;
+        height: 300px;
+        right: 20px;
+        bottom: 20px;
+    }
+    
+    .log-panel.hidden {
+        transform: translateX(calc(100% + 20px));
+    }
+}
+
+/* 日志面板样式 */
+.log-panel {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 400px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.log-panel.hidden {
+    transform: translateY(-50%) translateX(calc(100% + 40px));
+    opacity: 0;
+    pointer-events: none;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 15px 15px 0 0;
+}
+
+.log-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0;
+}
+
+.log-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.log-control-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #64748b;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.log-control-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #334155;
+    transform: translateY(-1px);
+}
+
+.log-control-btn.active {
+    background: #10b981;
+    color: white;
+}
+
+.log-control-btn.active:hover {
+    background: #059669;
+}
+
+.log-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.log-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.log-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.log-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.log-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.log-message {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.5);
+    border-left: 3px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.log-message:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-left-color: #10b981;
+}
+
+.log-time {
+    color: #64748b;
+    min-width: 80px;
+    font-size: 11px;
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.log-text {
+    color: #1e293b;
+    flex: 1;
+    word-break: break-word;
+}
+
+/* 不同级别的日志样式 */
+.log-message.info {
+    border-left-color: #3b82f6;
+}
+
+.log-message.success {
+    border-left-color: #10b981;
+}
+
+.log-message.warning {
+    border-left-color: #f59e0b;
+}
+
+.log-message.error {
+    border-left-color: #ef4444;
+}
+
+.log-message.task {
+    border-left-color: #8b5cf6;
+}
+
+.log-message.agent {
+    border-left-color: #06b6d4;
+}
+
+/* 头部控件样式 */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.toggle-logs-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.toggle-logs-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.toggle-logs-btn:active {
+    transform: translateY(0);
 }
