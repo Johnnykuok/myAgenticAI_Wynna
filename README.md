@@ -1,4 +1,4 @@
-# Johnnyguo - 通用AI智能体
+# Wynna - 通用AI智能体
 
 <div align="center">
 
