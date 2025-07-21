@@ -455,7 +455,7 @@ class ChatApp {
         welcomeDiv.innerHTML = `
             <div class="message bot-message">
                 <div class="message-content">
-                    <p>你好！我是由郭桓君同学开发的通用AI智能体～</p>
+                    <p>你好！我叫Wynna～我是郭桓君同学开发的通用AI智能体～</p>
                     <p>我可以陪你聊天，也可以为你解决复杂任务哦！</p>
                     <p>快来找我玩吧！✨</p>
                 </div>

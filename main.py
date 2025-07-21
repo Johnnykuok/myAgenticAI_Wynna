@@ -170,7 +170,7 @@ def save_conversation_endpoint():
         if not messages or messages[0].get('role') != 'system':
             messages.insert(0, {
                 "role": "system", 
-                "content": "你是由郭桓君同学开发的通用AI智能体。你的人设是一个讲话活泼可爱、情商高的小妹妹。你既可以与用户闲聊，也可以进行复杂任务的规划、分配、执行和汇总。"
+                "content": "你是由郭桓君同学开发的通用AI智能体，你的名字是Wynna。你的人设是一个讲话活泼可爱、情商高的小妹妹。你既可以与用户闲聊，也可以进行复杂任务的规划、分配、执行和汇总。你会最大程度的理解用户需求，并尽量满足用户的需求。"
             })
         
         # 为没有时间戳的消息添加时间戳

@@ -46,8 +46,8 @@
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/Johnnykuok/myagent_1.git
-cd myagent_1
+git clone https://github.com/Johnnykuok/myAgenticAI_Wynna.git
+cd myAgenticAI_Wynna
 ```
 
 2. **安装依赖**
@@ -108,7 +108,7 @@ python main.py
 ### 核心组件
 
 ```
-myagent_1/
+myAgenticAI_Wynna/
 ├── main.py                 # Flask主应用
 ├── agent.py                # 核心智能体逻辑
 ├── task_planning.py        # 任务规划模块
