@@ -1,13 +1,13 @@
 import json
 from typing import Dict, Any, List
-from config import get_openai_client, DOUBAO_MODEL
+from config import get_openai_qwen_client, QWEN_MODEL
 from utils.log_manager import log_info, log_success, log_error, log_task
 
 class TaskSummarizer:
     """任务汇总与生成节点"""
     
     def __init__(self):
-        self.client = get_openai_client()
+        self.client = get_openai_qwen_client()
     
     def format_results_for_display(self, results: List[Dict[str, Any]]) -> str:
         """格式化结果用于前端显示，支持图片和文字混合"""
@@ -75,7 +75,7 @@ class TaskSummarizer:
                         })
                 except Exception as e:
                     # 如果无法解析JSON，直接添加文本内容
-                    log_error(f"解析工具结果失败 {tool_name}: {str(e)}")
+                    # log_error(f"解析工具结果失败 {tool_name}: {str(e)}")
                     text_results.append({
                         "tool": tool_name,
                         "content": result_content
@@ -175,9 +175,9 @@ class TaskSummarizer:
 
             """
             
-            log_info("调用豆包模型进行结果汇总")
+            log_info("调用Qwen-Plus-Latest模型进行结果汇总")
             response = self.client.chat.completions.create(
-                model=DOUBAO_MODEL,
+                model=QWEN_MODEL,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}

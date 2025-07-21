@@ -1,7 +1,7 @@
 import json
 import uuid
 from datetime import datetime
-from config import get_openai_client, DOUBAO_MODEL, SYSTEM_PROMPT
+from config import get_openai_client, get_openai_deepseek_client, DOUBAO_MODEL, DEEPSEEK_MODEL, SYSTEM_PROMPT
 from conversation import save_conversation, load_conversation
 from task_dispatcher import get_task_dispatcher, get_task_results
 from task_summarizer import TaskSummarizer
@@ -81,7 +81,7 @@ def judge_question_type(user_message):
         reason = result.get("reason", "")
         
         # 记录判断结果
-        log_info(f"问题类型判断: {question_type}, 置信度: {confidence}, 理由: {reason}")
+        log_info(f"使用豆包模型进行问题类型判断: {question_type}, 置信度: {confidence}, 理由: {reason}")
         
         return question_type
             
@@ -93,9 +93,9 @@ def judge_question_type(user_message):
 def decompose_task(user_message):
     """任务拆解函数"""
     try:
-        client = get_openai_client()
+        client = get_openai_deepseek_client()
         response = client.chat.completions.create(
-            model=DOUBAO_MODEL,
+            model=DEEPSEEK_MODEL,
             messages=[
                 {
                     "role": "system",
@@ -109,7 +109,7 @@ def decompose_task(user_message):
                             "步骤二的具体描述",
                             "步骤三的具体描述"
                         ],
-                        "markdown": "# TODO\n\n1. 步骤一的具体描述\n2. 步骤二的具体描述\n3. 步骤三的具体描述"
+                        "markdown": "# TODO\n1. 步骤一的具体描述\n2. 步骤二的具体描述\n3. 步骤三的具体描述"
                     }
                     
                     其中tasks为拆解后的任务列表，markdown为to_do.md格式的内容。"""
@@ -122,7 +122,7 @@ def decompose_task(user_message):
             max_tokens=500,
             temperature=0.3,
             response_format={
-                "type": "json_schema",
+                "type": "json_object",
                 "json_schema": {
                     "name": "task_decomposition",
                     "schema": {
@@ -154,7 +154,7 @@ def decompose_task(user_message):
         markdown = result.get("markdown", "")
         
         # 记录拆解结果
-        log_task(f"任务拆解成功，共{len(tasks)}个步骤")
+        log_task(f"使用DeepSeek模型任务拆解成功，共{len(tasks)}个步骤")
         
         # 返回markdown格式，保持与原有代码兼容
         return markdown
