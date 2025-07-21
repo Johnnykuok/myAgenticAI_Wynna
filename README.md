@@ -20,10 +20,25 @@
 ## 📹 演示视频
 
 <div align="center">
-<video width="800" controls>
-  <source src="static/chatBot_example.mov" type="video/mp4">
+
+https://www.youtube.com/watch?v=HJJJ804r02c
+
+
+<!-- 请按照以下步骤获取视频链接：
+1. 在GitHub Issue中拖拽 static/chatBot_example.mov 文件
+2. 复制生成的链接替换下方的 YOUR_VIDEO_URL_HERE
+3. 取消下方HTML注释
+-->
+
+<!--
+<video src="YOUR_VIDEO_URL_HERE" controls muted width="800">
   您的浏览器不支持视频标签。
 </video>
+-->
+
+**临时方案：[📺 观看演示视频](static/chatBot_example.mov)**
+
+*上述视频链接需要下载查看。完整的嵌入视频请参考上方注释说明。*
 
 </div>
 
