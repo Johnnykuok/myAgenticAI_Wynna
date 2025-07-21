@@ -25,7 +25,7 @@
 <div align="center">
 
 **快速预览**  
-<video src="https://github.com/user-attachments/assets/93d77430-bfb4-416a-82f5-1d896ab2d992" controls muted width="600"></video>
+<video src="https://github.com/user-attachments/assets/b248d364-4c6c-4d2c-8bd5-0927bcccf625" controls muted width="600"></video>
 
 **完整演示**  
 [![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1jPg5zVEPR/?vd_source=801c5501fec00571bc1943ba4920eb9e)
@@ -41,7 +41,7 @@
 <div align="center">
 
 **快速预览**  
-<video src="https://github.com/user-attachments/assets/3f9cc611-e681-48b3-86ed-614cd18a8ffe" controls muted width="600"></video>
+<video src="https://github.com/user-attachments/assets/8d907318-c61b-4c25-8050-63dde0054e2f" controls muted width="600"></video>
 
 **完整演示**  
 [![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1TCgLzvECe/?vd_source=801c5501fec00571bc1943ba4920eb9e)
