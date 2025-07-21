@@ -19,26 +19,33 @@
 
 ## 📹 演示视频
 
+### 💬 ChatBot模式
+> *轻松随意的日常对话体验*
+
 <div align="center">
 
-https://www.youtube.com/watch?v=HJJJ804r02c
+**快速预览**  
+https://github.com/user-attachments/assets/93d77430-bfb4-416a-82f5-1d896ab2d992
 
+**完整演示**  
+[![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1jPg5zVEPR/?vd_source=801c5501fec00571bc1943ba4920eb9e)
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=ZxRNTJpfVvA)
 
-<!-- 请按照以下步骤获取视频链接：
-1. 在GitHub Issue中拖拽 static/chatBot_example.mov 文件
-2. 复制生成的链接替换下方的 YOUR_VIDEO_URL_HERE
-3. 取消下方HTML注释
--->
+</div>
 
-<!--
-<video src="YOUR_VIDEO_URL_HERE" controls muted width="800">
-  您的浏览器不支持视频标签。
-</video>
--->
+---
 
-**临时方案：[📺 观看演示视频](static/chatBot_example.mp4)**
+### 🎯 TaskPlanning模式
+> *智能任务拆解与流畅报告生成*
 
-*上述视频链接需要下载查看。完整的嵌入视频请参考上方注释说明。*
+<div align="center">
+
+**快速预览**  
+https://github.com/user-attachments/assets/3f9cc611-e681-48b3-86ed-614cd18a8ffe
+
+**完整演示**  
+[![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1TCgLzvECe/?vd_source=801c5501fec00571bc1943ba4920eb9e)
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=RUCm-TobGz8)
 
 </div>
 
