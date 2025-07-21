@@ -1,8 +1,8 @@
-# MyAgent_1 - 智能AI助手系统
+# Johnnyguo - 通用AI智能体
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)
 ![MCP](https://img.shields.io/badge/MCP-Protocol-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
@@ -26,7 +26,7 @@
 - **TaskPlanning模式**：智能拆解复杂任务，生成todo.md，支持用户确认和编辑
 
 ### 🔄 并行任务执行
-- **任务分配节点**：任务分配Agent将to-do项智能调度给下面专属Agent执行
+- **任务分配节点**：任务分配Agent将to-do项智能调度给专属Agent执行
 - **图片生成Agent**：基于文生图API，生成高质量图片
 - **文字生成Agent**：处理文本任务、天气查询、时间获取
 - **网页搜索Agent**：集成博查AI搜索，获取最新网络信息
@@ -46,7 +46,7 @@
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/yourusername/myagent_1.git
+git clone https://github.com/Johnnykuok/myagent_1.git
 cd myagent_1
 ```
 
@@ -263,7 +263,7 @@ python main.py
 
 ## 👨‍💻 作者
 
-**郭桓君** - [GitHub](https://github.com/yourusername)
+**郭桓君** - [GitHub](https://github.com/Johnnykuok)
 
 ## 🙏 致谢
 
