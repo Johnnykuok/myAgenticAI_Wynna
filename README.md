@@ -36,7 +36,7 @@ https://www.youtube.com/watch?v=HJJJ804r02c
 </video>
 -->
 
-**临时方案：[📺 观看演示视频](static/chatBot_example.mov)**
+**临时方案：[📺 观看演示视频](static/chatBot_example.mp4)**
 
 *上述视频链接需要下载查看。完整的嵌入视频请参考上方注释说明。*
 
