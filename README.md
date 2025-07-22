@@ -12,8 +12,8 @@
 [功能特色](#-功能特色) •
 [快速开始](#-快速开始) •
 [项目架构](#️-项目架构) •
-[API文档](#-api文档) •
-[配置说明](#️-配置说明)
+[API文档](#-API文档) •
+[开发指南](#️-开发指南)
 
 </div>
 
@@ -96,35 +96,37 @@ cp .env.example .env
 # 编辑 .env 文件，填入你的API密钥
 ```
 ```bash
-# 豆包/字节跳动 API 配置
-DOUBAO_API_KEY=your_doubao_api_key
+# 豆包大模型 API 配置
+DOUBAO_API_KEY=paste_your_doubao_api_key_here
 DOUBAO_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
 DOUBAO_MODEL=doubao-seed-1-6-flash-250615
 
-# 高德地图 API 配置
-GAODE_API_KEY=your_gaode_api_key
-GAODE_WEATHER_URL=https://restapi.amap.com/v3/weather/weatherInfo
+# Qwen Plus 大模型 API 配置
+QWEN_API_KEY=paste_your_qwen_api_key_here
+QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+QWEN_MODEL=qwen-plus-latest
+
+# DeepSeek V3 大模型 API 配置
+DEEPSEEK_API_KEY=paste_your_deepseek_api_key_here
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-chat
 
 # 博查AI搜索API配置
-BOCHA_API_KEY=your_bocha_api_key
+BOCHA_API_KEY=paste_your_bocha_api_key_here
 BOCHA_API_URL=https://api.bochaai.com/v1/ai-search
 
-# Flask 配置
-FLASK_HOST=0.0.0.0
-FLASK_PORT=8070
-FLASK_DEBUG=True
-
-# 生成图片保存路径
-GENERATED_IMAGES_PATH=static/generated_images
+# 高德地图 API 配置
+GAODE_API_KEY=paste_your_gaode_api_key_here
+GAODE_WEATHER_URL=https://restapi.amap.com/v3/weather/weatherInfo
 ```
 
 API密钥获取
 
 **豆包API**: 访问 [火山引擎](https://www.volcengine.com/) 获取
+**千问API**: 访问 [阿里云](https://www.aliyun.com/) 获取
+**DeepSeek API**: 访问 [深度求索](https://platform.deepseek.com/usage) 获取
 **高德地图API**: 访问 [高德开放平台](https://lbs.amap.com/) 获取
 **博查AI搜索**: 访问 [博查AI](https://www.bochaai.com/) 获取
-
-
 
 
 4. **启动服务**
