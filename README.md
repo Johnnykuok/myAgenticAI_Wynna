@@ -124,7 +124,7 @@ GAODE_WEATHER_URL=https://restapi.amap.com/v3/weather/weatherInfo
 | 服务 | 获取地址 |
 |------|----------|
 | **豆包API** | [火山引擎](https://www.volcengine.com/) |
-| **千问API** | [阿里云](https://www.aliyun.com/) |
+| **通义千问API** | [阿里云](https://www.aliyun.com/) |
 | **DeepSeek API** | [深度求索](https://platform.deepseek.com/usage) |
 | **高德地图API** | [高德开放平台](https://lbs.amap.com/) |
 | **博查AI搜索** | [博查AI](https://www.bochaai.com/) |
@@ -304,7 +304,7 @@ python main.py
 
 - [豆包大模型](https://www.volcengine.com/) - 核心AI能力（任务执行层）
 - [DeepSeek大模型](https://www.deepseek.com/) - 核心AI能力（任务规划层）
-- [千问大模型](https://www.aliyun.com/) - 核心AI能力（任务汇总层）
+- [通义千问大模型](https://www.aliyun.com/) - 核心AI能力（任务汇总层）
 - [Model Context Protocol](https://modelcontextprotocol.io/) - 工具调用通信协议
 - [Flask](https://flask.palletsprojects.com/) - Web框架
 - [高德地图API](https://lbs.amap.com/) - 天气服务
