@@ -119,14 +119,15 @@ BOCHA_API_URL=https://api.bochaai.com/v1/ai-search
 GAODE_API_KEY=paste_your_gaode_api_key_here
 GAODE_WEATHER_URL=https://restapi.amap.com/v3/weather/weatherInfo
 ```
+### 📋 API密钥获取
 
-API密钥获取
-
-**豆包API**: 访问 [火山引擎](https://www.volcengine.com/) 获取
-**千问API**: 访问 [阿里云](https://www.aliyun.com/) 获取
-**DeepSeek API**: 访问 [深度求索](https://platform.deepseek.com/usage) 获取
-**高德地图API**: 访问 [高德开放平台](https://lbs.amap.com/) 获取
-**博查AI搜索**: 访问 [博查AI](https://www.bochaai.com/) 获取
+| 服务 | 获取地址 |
+|------|----------|
+| **豆包API** | [火山引擎](https://www.volcengine.com/) |
+| **千问API** | [阿里云](https://www.aliyun.com/) |
+| **DeepSeek API** | [深度求索](https://platform.deepseek.com/usage) |
+| **高德地图API** | [高德开放平台](https://lbs.amap.com/) |
+| **博查AI搜索** | [博查AI](https://www.bochaai.com/) |
 
 
 4. **启动服务**
