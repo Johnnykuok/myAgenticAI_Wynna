@@ -7,7 +7,7 @@
 ![MCP](https://img.shields.io/badge/MCP-Protocol-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-*一个基于Python、MCP协议和豆包大模型的通用人工智能体，支持任务拆解、并行执行和智能汇总*
+*一个基于Python、MCP协议和豆包、Qwen、DeepSeek大模型的通用人工智能体，支持任务拆解、并行执行和智能汇总*
 
 [功能特色](#-功能特色) •
 [快速开始](#-快速开始) •
