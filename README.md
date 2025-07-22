@@ -317,3 +317,9 @@ python main.py
 **如果这个项目对你有帮助，请给个 ⭐️ Star 支持一下！**
 
 </div>
+
+
+
+## Star History
+
+![Star History Chart](https://api.star-history.com/svg?repos=Johnnykuok/myAgenticAI_Wynna&type=Date)
