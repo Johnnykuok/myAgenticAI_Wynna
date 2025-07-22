@@ -302,8 +302,10 @@ python main.py
 
 ## 🙏 致谢
 
-- [豆包大模型](https://www.volcengine.com/) - 核心AI能力
-- [Model Context Protocol](https://modelcontextprotocol.io/) - 智能体通信协议
+- [豆包大模型](https://www.volcengine.com/) - 核心AI能力（任务执行层）
+- [DeepSeek大模型](https://www.deepseek.com/) - 核心AI能力（任务规划层）
+- [千问大模型](https://www.aliyun.com/) - 核心AI能力（任务汇总层）
+- [Model Context Protocol](https://modelcontextprotocol.io/) - 工具调用通信协议
 - [Flask](https://flask.palletsprojects.com/) - Web框架
 - [高德地图API](https://lbs.amap.com/) - 天气服务
 - [博查AI](https://www.bochaai.com/) - 搜索服务
