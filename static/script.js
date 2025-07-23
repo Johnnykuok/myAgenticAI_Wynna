@@ -169,9 +169,9 @@ class ChatApp {
         messageContent.className = 'message-content';
         
         if (isError) {
-            messageContent.style.background = '#ffe6e6';
-            messageContent.style.color = '#d63031';
-            messageContent.style.border = '1px solid #fab1a0';
+            messageContent.style.background = '#fef2f2';
+            messageContent.style.color = '#dc2626';
+            messageContent.style.border = '1px solid #fca5a5';
         }
         
         // 处理换行和特殊字符，并保存原始内容

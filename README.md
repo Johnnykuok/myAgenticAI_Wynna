@@ -25,11 +25,11 @@
 <div align="center">
 
 **快速预览**  
-<video src="https://github.com/user-attachments/assets/b248d364-4c6c-4d2c-8bd5-0927bcccf625" controls muted width="600"></video>
+<video src="https://github.com/user-attachments/assets/8b479020-dfc8-43f9-9969-29977449f056" controls muted width="600"></video>
 
 **完整演示**  
-[![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1jPg5zVEPR/?vd_source=801c5501fec00571bc1943ba4920eb9e)
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=ZxRNTJpfVvA)
+[![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV17Y8FzdEQz/?vd_source=801c5501fec00571bc1943ba4920eb9e)
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=7TbimSYrVzk)
 
 </div>
 
@@ -41,11 +41,11 @@
 <div align="center">
 
 **快速预览**  
-<video src="https://github.com/user-attachments/assets/8d907318-c61b-4c25-8050-63dde0054e2f" controls muted width="600"></video>
+<video src="https://github.com/user-attachments/assets/664536e3-e947-4219-b05d-7d3e197713d7" controls muted width="600"></video>
 
 **完整演示**  
-[![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1TCgLzvECe/?vd_source=801c5501fec00571bc1943ba4920eb9e)
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=RUCm-TobGz8)
+[![Bilibili](https://img.shields.io/badge/Bilibili-FF6B9D?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1qv8FzWEE4/?vd_source=801c5501fec00571bc1943ba4920eb9e)
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=273ejJcpYTE)
 
 </div>
 

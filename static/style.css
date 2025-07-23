@@ -7,7 +7,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-    background: linear-gradient(135deg, #ff4d6d 0%, #ff6b8a 50%, #ffb3c1 100%);
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #e5e7eb 100%);
     min-height: 100vh;
     color: #333;
 }
@@ -37,9 +37,9 @@ body {
 }
 
 .mode-planning {
-    color: #dc2626;
-    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-    border-color: #fca5a5;
+    color: #7c2d12;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: #f59e0b;
 }
 
 .mode-default {
@@ -100,7 +100,7 @@ code {
     border-radius: 3px;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 13px;
-    color: #c7254e;
+    color: #6366f1;
 }
 
 /* 标题样式 */
@@ -269,18 +269,18 @@ code {
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(255, 50, 100, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
 /* 侧边栏样式 */
 .sidebar {
     width: 300px;
-    background: linear-gradient(180deg, #ff4d6d 0%, #e63950 100%);
+    background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
     color: white;
     display: flex;
     flex-direction: column;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-header {
@@ -289,9 +289,9 @@ code {
 }
 
 .logo {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
     margin-bottom: 15px;
     object-fit: cover;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -449,8 +449,8 @@ code {
 }
 
 .conversation-dropdown-item.delete:hover {
-    background: #ffebee;
-    color: #d32f2f;
+    background: #fef2f2;
+    color: #dc2626;
 }
 
 .conversation-dropdown-item .icon {
@@ -474,7 +474,7 @@ code {
 }
 
 .header-info h2 {
-    color: #ff4d6d;
+    color: #1f2937;
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 5px;
@@ -526,10 +526,10 @@ code {
 }
 
 .user-message .message-content {
-    background: linear-gradient(135deg, #ff4d6d, #ff6b8a);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
     border-bottom-right-radius: 5px;
-    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .bot-message {
@@ -587,14 +587,14 @@ code {
 }
 
 #chat-input:focus {
-    border-color: #ff4d6d;
+    border-color: #3b82f6;
     background: white;
-    box-shadow: 0 0 20px rgba(255, 77, 109, 0.2);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 .send-btn {
     padding: 15px 25px;
-    background: linear-gradient(135deg, #ff4d6d, #e63950);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
     border: none;
     border-radius: 25px;
@@ -602,12 +602,12 @@ code {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .send-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 77, 109, 0.4);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .send-btn:disabled {
@@ -648,7 +648,7 @@ code {
     width: 50px;
     height: 50px;
     border: 4px solid rgba(255, 255, 255, 0.3);
-    border-left: 4px solid #ff4d6d;
+    border-left: 4px solid #3b82f6;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -683,7 +683,7 @@ code {
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-    background: rgba(255, 77, 109, 0.3);
+    background: rgba(59, 130, 246, 0.3);
     border-radius: 3px;
 }
 
@@ -693,7 +693,7 @@ code {
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 77, 109, 0.5);
+    background: rgba(59, 130, 246, 0.5);
 }
 
 .conversation-list::-webkit-scrollbar-thumb:hover {
@@ -723,7 +723,7 @@ code {
 .typing-dots .dot {
     width: 8px;
     height: 8px;
-    background: #ff4d6d;
+    background: #3b82f6;
     border-radius: 50%;
     animation: typingDots 1.4s infinite ease-in-out;
 }
@@ -764,7 +764,7 @@ code {
     display: inline-block;
     width: 4px;
     height: 4px;
-    background: #ff4d6d;
+    background: #3b82f6;
     border-radius: 50%;
     animation: loadingDots 1.4s infinite ease-in-out;
     margin-left: 1px;
